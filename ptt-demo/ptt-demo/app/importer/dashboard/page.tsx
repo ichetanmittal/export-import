@@ -163,12 +163,12 @@ export default function ImporterDashboard() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(ptt.maturity_date).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
                         <button
                           onClick={() => router.push(`/importer/ptt/${ptt.id}`)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-blue-600 hover:text-blue-900 font-medium"
                         >
-                          View Details
+                          View Details →
                         </button>
                       </td>
                     </tr>

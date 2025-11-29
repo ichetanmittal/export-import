@@ -3,10 +3,10 @@ import { getPTTsByUserId } from '@/lib/db/ptt';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const userId = params.userId;
+    const { userId } = await params;
 
     const ptts = await getPTTsByUserId(userId);
 
