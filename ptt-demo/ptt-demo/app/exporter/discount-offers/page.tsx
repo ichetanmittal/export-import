@@ -1,10 +1,10 @@
 'use client';
 
 import DashboardLayout from '@/components/shared/DashboardLayout';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function DiscountOffersPage() {
+function DiscountOffersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pttIdFromQuery = searchParams.get('ptt');
@@ -263,5 +263,13 @@ export default function DiscountOffersPage() {
         )}
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function DiscountOffersPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
+      <DiscountOffersContent />
+    </Suspense>
   );
 }
