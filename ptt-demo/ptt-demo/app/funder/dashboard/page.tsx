@@ -236,7 +236,40 @@ export default function FunderDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {/* Portfolio rows will go here */}
+                  {portfolio.map((ptt) => {
+                    const faceValue = parseFloat(ptt.amount || 0);
+                    const purchasePrice = faceValue * 0.95; // Estimate based on typical discount
+                    const expectedReturn = faceValue - purchasePrice;
+
+                    return (
+                      <tr key={ptt.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {ptt.ptt_number}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          ${purchasePrice.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {ptt.currency} {faceValue.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
+                          ${expectedReturn.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(ptt.maturity_date).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            ptt.status === 'discounted' ? 'bg-blue-100 text-blue-800' :
+                            ptt.status === 'active' ? 'bg-green-100 text-green-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {ptt.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

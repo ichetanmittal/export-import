@@ -49,8 +49,11 @@ export async function getMarketplaceOffers(filters?: {
       exporter:exporter_id(id, name, organization)
     `);
 
+  // Only show available offers by default
   if (filters?.status) {
     query = query.eq('status', filters.status);
+  } else {
+    query = query.eq('status', 'available');
   }
 
   const { data, error } = await query.order('created_at', { ascending: false });
