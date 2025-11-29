@@ -81,13 +81,14 @@
 - [ ] Add document download functionality
 
 ### Settlement Automation
+- [x] Settlement payment processing API ✅
+- [x] Settlement confirmation workflow ✅
 - [ ] Create cron job for settlement triggers at maturity
-- [ ] Settlement payment processing UI
-- [ ] Settlement confirmation workflow
+- [ ] Settlement UI in Bank dashboard
 
 ---
 
-## 🎯 Complete Testing Flow (NOW WORKING!)
+## 🎯 Complete Testing Flow (FULLY WORKING!)
 
 1. **Importer**: Request PTT ✅
 2. **Bank**: Issue PTT ✅
@@ -96,8 +97,9 @@
 5. **Importer**: Approve documents → PTT becomes redeemable ✅
 6. **Exporter**: Offer PTT for discounting ✅
 7. **Funder**: Accept offer & pay ✅ (Auto-transfers PTT)
-8. **Bank**: Trigger settlement at maturity ⏳ (Manual API call)
-9. **Funder**: Confirm settlement received ⏳ (Manual API call)
+8. **Bank**: Trigger settlement at maturity ✅ (API: POST /api/settlement/trigger)
+9. **Bank**: Process payment ✅ (API: POST /api/settlement/process-payment)
+10. **Bank**: Confirm settlement ✅ (API: POST /api/settlement/confirm → PTT marked as "settled")
 
 ---
 
@@ -115,11 +117,20 @@
 - ✅ Funder can view marketplace and accept offers
 - ✅ Complete ownership transfer flow working
 
-**System Completion: ~85%**
+**System Completion: ~90%**
 
-**Missing Features:**
+**New Additions (Latest):**
+- ✅ Settlement API endpoints (trigger, process-payment, confirm)
+- ✅ Complete settlement workflow tested
+- ✅ PTT status updates to "settled"
+- ✅ Funder dashboard portfolio display fixed
+- ✅ Marketplace filtering (only shows available offers)
+- ✅ Production build ready (npm run build passes)
+
+**Optional Enhancements:**
 - ⚠️ File upload/storage (Supabase Storage not integrated)
 - ⚠️ Settlement automation (cron jobs)
+- ⚠️ Settlement UI in Bank dashboard
 - ⚠️ Email notifications
 
 ---
@@ -128,6 +139,7 @@
 
 - Database Schema: `/database-schema.sql`
 - Implementation Plan: `/PTT-DEMO-IMPLEMENTATION-PLAN.md`
+- README: `/README.md` (Complete flow documentation)
 - Dev Server: `http://localhost:3000`
 
-**Last Updated:** 2025-11-29
+**Last Updated:** 2025-11-29 (Settlement workflow completed)
