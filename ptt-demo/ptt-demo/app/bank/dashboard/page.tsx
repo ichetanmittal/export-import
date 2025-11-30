@@ -6,10 +6,15 @@ import { useEffect, useState } from 'react';
 export default function BankDashboard() {
   const [requests, setRequests] = useState<any[]>([]);
   const [allPtts, setAllPtts] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState<string | null>(null);
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
     fetchRequests();
     fetchAllPtts();
   }, []);
@@ -95,14 +100,21 @@ export default function BankDashboard() {
     <DashboardLayout role="bank">
       <div className="space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+            <h3 className="text-sm font-medium text-gray-500">Treasury Balance</h3>
+            <p className="text-3xl font-bold text-green-600 mt-2">
+              ${user?.balance ? parseFloat(user.balance).toLocaleString() : '0'}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">Available funds</p>
+          </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Pending Requests</h3>
             <p className="text-3xl font-bold text-yellow-600 mt-2">{stats.pendingRequests}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Issued PTTs</h3>
-            <p className="text-3xl font-bold text-green-600 mt-2">{stats.issuedPtts}</p>
+            <p className="text-3xl font-bold text-purple-600 mt-2">{stats.issuedPtts}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Total Exposure</h3>

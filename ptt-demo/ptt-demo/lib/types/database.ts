@@ -9,6 +9,7 @@ export interface User {
   role: UserRole;
   organization: string | null;
   phone: string | null;
+  balance: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;

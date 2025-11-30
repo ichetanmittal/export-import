@@ -5,10 +5,15 @@ import { useEffect, useState } from 'react';
 
 export default function FunderDashboard() {
   const [offers, setOffers] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
     fetchMarketplace();
   }, []);
 
@@ -71,12 +76,40 @@ export default function FunderDashboard() {
     return diffDays;
   };
 
+  const stats = {
+    availableOffers: offers.length,
+    totalInvestmentAvailable: offers.reduce((sum, o) => sum + parseFloat(o.asking_price || 0), 0),
+  };
+
   return (
     <DashboardLayout role="funder">
       <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Marketplace</h1>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+            <h3 className="text-sm font-medium text-gray-500">Account Balance</h3>
+            <p className="text-3xl font-bold text-blue-600 mt-2">
+              ${user?.balance ? parseFloat(user.balance).toLocaleString() : '0'}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">Available funds</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500">Available Offers</h3>
+            <p className="text-3xl font-bold text-green-600 mt-2">{stats.availableOffers}</p>
+            <p className="text-xs text-gray-400 mt-1">In marketplace</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500">Total Investment Available</h3>
+            <p className="text-3xl font-bold text-purple-600 mt-2">${stats.totalInvestmentAvailable.toLocaleString()}</p>
+            <p className="text-xs text-gray-400 mt-1">Combined asking price</p>
+          </div>
+        </div>
+
         {/* Marketplace Offers */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Marketplace - Available PTTs</h2>
+          <h2 className="text-xl font-semibold mb-4">Available PTTs for Investment</h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">Loading...</div>
           ) : offers.length === 0 ? (

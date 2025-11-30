@@ -1,104 +1,77 @@
 import { createClient } from '@/lib/supabase/server';
 import { Settlement } from '@/lib/types/database';
 
-// Trigger settlement
-export async function triggerSettlement(data: {
-  ptt_id: string;
-}) {
+// One-click settlement - handles everything in a single transaction
+export async function settlePayment(ptt_id: string) {
   const supabase = await createClient();
 
-  // Get PTT details
+  // 1. Get PTT details with related user info
   const { data: ptt, error: pttError } = await supabase
     .from('ptt_tokens')
-    .select('*')
-    .eq('id', data.ptt_id)
+    .select('*, issuer_bank:issuer_bank_id(id, balance), beneficiary:current_owner_id(id, balance)')
+    .eq('id', ptt_id)
     .single();
 
-  if (pttError) throw pttError;
+  if (pttError) throw new Error(`Failed to fetch PTT: ${pttError.message}`);
+  if (!ptt) throw new Error('PTT not found');
 
-  // Create settlement record
-  const { data: settlement, error } = await supabase
+  const timestamp = new Date().toISOString();
+  const paymentReference = `AUTO-SETTLE-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+  // 2. Create settlement record (already completed)
+  const { data: settlement, error: settlementError } = await supabase
     .from('settlements')
     .insert({
-      ptt_id: data.ptt_id,
+      ptt_id: ptt_id,
       payer_bank_id: ptt.issuer_bank_id,
       beneficiary_id: ptt.current_owner_id,
       amount: ptt.amount,
-      status: 'triggered',
+      status: 'completed', // Directly completed!
       scheduled_date: ptt.maturity_date,
-      triggered_at: new Date().toISOString(),
+      triggered_at: timestamp,
+      paid_at: timestamp,
+      confirmed_at: timestamp,
+      payment_reference: paymentReference,
     })
     .select()
     .single();
 
-  if (error) throw error;
-  return settlement as Settlement;
-}
+  if (settlementError) throw new Error(`Failed to create settlement: ${settlementError.message}`);
 
-// Process settlement payment
-export async function processSettlementPayment(data: {
-  settlement_id: string;
-  payment_reference: string;
-}) {
-  const supabase = await createClient();
+  // 3. Update balances - Deduct from bank treasury
+  const { error: deductError } = await supabase.rpc('decrement_balance', {
+    user_id_param: ptt.issuer_bank_id,
+    amount_param: ptt.amount
+  });
 
-  const { data: settlement, error } = await supabase
-    .from('settlements')
-    .update({
-      status: 'paid',
-      paid_at: new Date().toISOString(),
-      payment_reference: data.payment_reference,
-    })
-    .eq('id', data.settlement_id)
-    .select()
-    .single();
+  if (deductError) throw new Error(`Failed to deduct from bank: ${deductError.message}`);
 
-  if (error) throw error;
-  return settlement as Settlement;
-}
+  // 4. Update balances - Add to beneficiary (funder)
+  const { error: addError } = await supabase.rpc('increment_balance', {
+    user_id_param: ptt.current_owner_id,
+    amount_param: ptt.amount
+  });
 
-// Confirm settlement
-export async function confirmSettlement(data: {
-  settlement_id: string;
-}) {
-  const supabase = await createClient();
+  if (addError) throw new Error(`Failed to credit beneficiary: ${addError.message}`);
 
-  // Get settlement details
-  const { data: settlement, error: settlementError } = await supabase
-    .from('settlements')
-    .select('*')
-    .eq('id', data.settlement_id)
-    .single();
-
-  if (settlementError) throw settlementError;
-
-  // Update settlement status
-  const { error: updateError } = await supabase
-    .from('settlements')
-    .update({
-      status: 'completed',
-      confirmed_at: new Date().toISOString(),
-    })
-    .eq('id', data.settlement_id);
-
-  if (updateError) throw updateError;
-
-  // Update PTT status to settled
-  const { error: pttError } = await supabase
+  // 5. Update PTT status to settled
+  const { error: pttUpdateError } = await supabase
     .from('ptt_tokens')
     .update({ status: 'settled' })
-    .eq('id', (settlement as Settlement).ptt_id);
+    .eq('id', ptt_id);
 
-  if (pttError) throw pttError;
+  if (pttUpdateError) throw new Error(`Failed to update PTT status: ${pttUpdateError.message}`);
 
-  // Record final transfer
-  await supabase.from('ptt_transfers').insert({
-    ptt_id: (settlement as Settlement).ptt_id,
-    from_user_id: (settlement as Settlement).payer_bank_id,
-    to_user_id: (settlement as Settlement).beneficiary_id,
+  // 6. Record transfer for audit trail
+  const { error: transferError } = await supabase.from('ptt_transfers').insert({
+    ptt_id: ptt_id,
+    from_user_id: ptt.issuer_bank_id,
+    to_user_id: ptt.current_owner_id,
     transfer_type: 'settlement',
-    amount: (settlement as Settlement).amount,
+    amount: ptt.amount,
   });
+
+  if (transferError) throw new Error(`Failed to record transfer: ${transferError.message}`);
 
   return settlement as Settlement;
 }
