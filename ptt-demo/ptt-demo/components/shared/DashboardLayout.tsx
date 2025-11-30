@@ -59,6 +59,8 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
     ],
     bank: [
       { label: 'Dashboard', href: '/bank/dashboard' },
+      { label: 'Outstanding PTTs', href: '/bank/outstanding-ptts' },
+      { label: 'Settlements', href: '/bank/settlements' },
     ],
     exporter: [
       { label: 'Dashboard', href: '/exporter/dashboard' },
