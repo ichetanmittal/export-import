@@ -88,7 +88,7 @@ export default function ImporterDashboard() {
         {/* Quick Actions */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={() => router.push('/importer/request-ptt')}
               className="p-4 border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
@@ -102,13 +102,6 @@ export default function ImporterDashboard() {
             >
               <div className="text-lg font-semibold">Review Documents</div>
               <div className="text-sm text-gray-500 mt-1">Approve shipping documents</div>
-            </button>
-            <button
-              onClick={() => router.push('/importer/history')}
-              className="p-4 border-2 border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="text-lg font-semibold">Transaction History</div>
-              <div className="text-sm text-gray-500 mt-1">View all transactions</div>
             </button>
           </div>
         </div>
