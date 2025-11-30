@@ -14,6 +14,8 @@ function DiscountOffersContent() {
   const [discountRate, setDiscountRate] = useState('5');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [existingOffer, setExistingOffer] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     fetchRedeemablePTTs();
@@ -35,6 +37,7 @@ function DiscountOffersContent() {
 
         if (pttIdFromQuery && redeemable.find((p: any) => p.id === pttIdFromQuery)) {
           setSelectedPtt(pttIdFromQuery);
+          checkExistingOffer(pttIdFromQuery);
         }
       }
     } catch (error) {
@@ -42,6 +45,34 @@ function DiscountOffersContent() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkExistingOffer = async (pttId: string) => {
+    try {
+      const response = await fetch(`/api/discounting/marketplace`);
+      if (response.ok) {
+        const data = await response.json();
+        const offer = data.offers?.find((o: any) =>
+          o.ptt_id === pttId && o.status === 'available'
+        );
+
+        if (offer) {
+          setExistingOffer(offer);
+          setDiscountRate(offer.discount_rate.toString());
+          setIsEditing(true);
+        } else {
+          setExistingOffer(null);
+          setIsEditing(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking existing offer:', error);
+    }
+  };
+
+  const handlePttChange = (pttId: string) => {
+    setSelectedPtt(pttId);
+    checkExistingOffer(pttId);
   };
 
   const handleSubmitOffer = async () => {
@@ -69,25 +100,51 @@ function DiscountOffersContent() {
       const faceValue = parseFloat(ptt.amount);
       const askingPrice = faceValue * (1 - rate / 100);
 
-      const response = await fetch('/api/discounting/offer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ptt_id: selectedPtt,
-          exporter_id: user.id,
-          asking_price: askingPrice,
-          discount_rate: rate,
-        })
-      });
+      if (isEditing && existingOffer) {
+        // Update existing offer
+        const response = await fetch('/api/discounting/offer', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            offer_id: existingOffer.id,
+            asking_price: askingPrice,
+            discount_rate: rate,
+          })
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to create discount offer');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update discount offer');
+        }
+
+        alert('Discount offer updated successfully!');
+      } else {
+        // Create new offer
+        const response = await fetch('/api/discounting/offer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            ptt_id: selectedPtt,
+            exporter_id: user.id,
+            asking_price: askingPrice,
+            discount_rate: rate,
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to create discount offer');
+        }
+
+        alert('Discount offer created successfully! Your PTT is now listed in the marketplace.');
       }
 
-      alert('Discount offer created successfully! Your PTT is now listed in the marketplace.');
       router.push('/exporter/dashboard');
     } catch (error: any) {
       alert('Error: ' + error.message);
@@ -112,7 +169,7 @@ function DiscountOffersContent() {
     <DashboardLayout role="exporter">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Create Discount Offer</h1>
+          <h1 className="text-2xl font-bold">{isEditing ? 'Edit' : 'Create'} Discount Offer</h1>
           <button
             onClick={() => router.push('/exporter/dashboard')}
             className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
@@ -120,6 +177,14 @@ function DiscountOffersContent() {
             ← Back to Dashboard
           </button>
         </div>
+
+        {isEditing && existingOffer && (
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+            <p className="text-sm text-blue-800">
+              ℹ️ <strong>Editing existing offer</strong> - An offer already exists for this PTT. Update the discount rate below.
+            </p>
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-8">Loading...</div>
@@ -142,7 +207,7 @@ function DiscountOffersContent() {
                   </label>
                   <select
                     value={selectedPtt}
-                    onChange={(e) => setSelectedPtt(e.target.value)}
+                    onChange={(e) => handlePttChange(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="">-- Select a PTT --</option>
@@ -250,7 +315,10 @@ function DiscountOffersContent() {
                 disabled={!selectedPtt || submitting}
                 className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
               >
-                {submitting ? 'Creating Offer...' : 'Create Discount Offer'}
+                {submitting
+                  ? (isEditing ? 'Updating Offer...' : 'Creating Offer...')
+                  : (isEditing ? 'Update Discount Offer' : 'Create Discount Offer')
+                }
               </button>
               <button
                 onClick={() => router.push('/exporter/dashboard')}

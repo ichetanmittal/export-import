@@ -3,7 +3,6 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 
 interface Document {
   id: string;
@@ -75,23 +74,24 @@ export default function ReviewDocumentsPage() {
 
   const downloadFile = async (filePath: string, fileName: string) => {
     try {
-      const supabase = createClient();
+      // Call API endpoint to get signed URL
+      const response = await fetch(`/api/documents/download?file_path=${encodeURIComponent(filePath)}`);
 
-      // Get signed URL
-      const { data, error } = await supabase.storage
-        .from('ptt-documents')
-        .createSignedUrl(filePath, 3600); // Valid for 1 hour
+      if (!response.ok) {
+        throw new Error('Failed to generate download link');
+      }
 
-      if (error) {
-        alert('Failed to generate download link');
-        return;
+      const data = await response.json();
+
+      if (!data.signedUrl) {
+        throw new Error('No signed URL returned');
       }
 
       // Open in new tab
       window.open(data.signedUrl, '_blank');
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download file');
+      alert('Failed to download file. Please try again.');
     }
   };
 
