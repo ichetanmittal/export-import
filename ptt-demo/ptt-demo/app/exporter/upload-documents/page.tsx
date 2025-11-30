@@ -27,7 +27,7 @@ export default function UploadDocumentsPage() {
   const [user, setUser] = useState<any>(null);
   const [ptts, setPtts] = useState<PTT[]>([]);
   const [selectedPttId, setSelectedPttId] = useState<string>('');
-  const [documentType, setDocumentType] = useState<string>('commercial_invoice');
+  const [documentType, setDocumentType] = useState<string>('invoice');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -208,12 +208,12 @@ export default function UploadDocumentsPage() {
                     onChange={(e) => setDocumentType(e.target.value)}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    <option value="commercial_invoice">Commercial Invoice</option>
+                    <option value="invoice">Commercial Invoice</option>
                     <option value="bill_of_lading">Bill of Lading</option>
+                    <option value="ebl">Electronic Bill of Lading (eBL)</option>
+                    <option value="awb">Air Waybill (AWB)</option>
+                    <option value="shipping_bill">Shipping Bill</option>
                     <option value="packing_list">Packing List</option>
-                    <option value="certificate_of_origin">Certificate of Origin</option>
-                    <option value="insurance_certificate">Insurance Certificate</option>
-                    <option value="inspection_certificate">Inspection Certificate</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
