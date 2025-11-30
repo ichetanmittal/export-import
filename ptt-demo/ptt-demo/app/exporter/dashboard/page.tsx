@@ -78,38 +78,9 @@ export default function ExporterDashboard() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              onClick={() => router.push('/exporter/upload-documents')}
-              className="p-4 border-2 border-purple-500 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
-            >
-              <div className="text-lg font-semibold">Upload Documents</div>
-              <div className="text-sm text-gray-500 mt-1">Submit shipping documents</div>
-            </button>
-            <button
-              onClick={() => router.push('/exporter/discount-offers')}
-              className="p-4 border-2 border-green-500 text-green-600 rounded-lg hover:bg-green-50 transition-colors"
-            >
-              <div className="text-lg font-semibold">Discount PTTs</div>
-              <div className="text-sm text-gray-500 mt-1">Offer PTTs for early payment</div>
-            </button>
-          </div>
-        </div>
-
         {/* Received PTTs */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Received PTTs</h2>
-            <button
-              onClick={fetchPTTs}
-              className="text-purple-600 hover:text-purple-700 text-sm"
-            >
-              🔄 Refresh
-            </button>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">Received PTTs</h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">Loading...</div>
           ) : ptts.length === 0 ? (

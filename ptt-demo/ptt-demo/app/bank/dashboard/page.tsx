@@ -114,36 +114,9 @@ export default function BankDashboard() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="p-4 border-2 border-green-500 text-green-600 rounded-lg hover:bg-green-50 transition-colors">
-              <div className="text-lg font-semibold">Review Requests</div>
-              <div className="text-sm text-gray-500 mt-1">Approve PTT requests</div>
-            </button>
-            <button className="p-4 border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-              <div className="text-lg font-semibold">Outstanding PTTs</div>
-              <div className="text-sm text-gray-500 mt-1">Monitor active PTTs</div>
-            </button>
-            <button className="p-4 border-2 border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors">
-              <div className="text-lg font-semibold">Process Settlements</div>
-              <div className="text-sm text-gray-500 mt-1">Handle maturity payments</div>
-            </button>
-          </div>
-        </div>
-
         {/* Pending PTT Requests */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Pending PTT Requests</h2>
-            <button
-              onClick={() => { fetchRequests(); fetchAllPtts(); }}
-              className="text-green-600 hover:text-green-700 text-sm"
-            >
-              🔄 Refresh
-            </button>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">Pending PTT Requests</h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">Loading...</div>
           ) : requests.length === 0 ? (

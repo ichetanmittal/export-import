@@ -184,7 +184,15 @@ export async function getPTTsByUserId(user_id: string) {
       *,
       issuer_bank:issuer_bank_id(id, name, organization),
       current_owner:current_owner_id(id, name, organization),
-      exporter:exporter_id(id, name, organization)
+      exporter:exporter_id(id, name, organization),
+      discounting_offers(
+        id,
+        asking_price,
+        discount_rate,
+        status,
+        accepted_at,
+        exporter:exporter_id(id, name, organization)
+      )
     `)
     .or(`current_owner_id.eq.${user_id},original_importer_id.eq.${user_id},issuer_bank_id.eq.${user_id}`)
     .order('created_at', { ascending: false });

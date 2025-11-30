@@ -62,15 +62,7 @@ export default function FunderPortfolio() {
 
         {/* Portfolio Table */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">My PTT Holdings</h2>
-            <button
-              onClick={fetchPortfolio}
-              className="text-blue-600 hover:text-blue-700 text-sm"
-            >
-              🔄 Refresh
-            </button>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">My PTT Holdings</h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">Loading...</div>
           ) : portfolio.length === 0 ? (
@@ -84,9 +76,11 @@ export default function FunderPortfolio() {
                 <thead>
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PTT Number</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Offered By</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purchase Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Face Value</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expected Return</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount Rate</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Maturity Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   </tr>
@@ -94,22 +88,45 @@ export default function FunderPortfolio() {
                 <tbody className="divide-y divide-gray-200">
                   {portfolio.map((ptt) => {
                     const faceValue = parseFloat(ptt.amount || 0);
-                    const purchasePrice = faceValue * 0.95; // Estimate based on typical discount
+
+                    // Get discount offer details (find the accepted offer)
+                    const acceptedOffer = ptt.discounting_offers?.find((offer: any) =>
+                      offer.status === 'accepted' || offer.status === 'paid'
+                    );
+
+                    const purchasePrice = acceptedOffer
+                      ? parseFloat(acceptedOffer.asking_price)
+                      : faceValue * 0.95; // Fallback estimate
+
+                    const discountRate = acceptedOffer
+                      ? acceptedOffer.discount_rate
+                      : 5; // Fallback estimate
+
                     const expectedReturn = faceValue - purchasePrice;
+
+                    const offeredBy = acceptedOffer?.exporter?.name ||
+                                     ptt.exporter?.name ||
+                                     'N/A';
 
                     return (
                       <tr key={ptt.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {ptt.ptt_number}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {offeredBy}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${purchasePrice.toLocaleString()}
+                          ${purchasePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {ptt.currency} {faceValue.toLocaleString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
-                          ${expectedReturn.toLocaleString()}
+                          ${expectedReturn.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-semibold">
+                          {discountRate}%
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {new Date(ptt.maturity_date).toLocaleDateString()}
