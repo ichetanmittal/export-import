@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { PTTToken, PTTStatus, PTTCondition, PTTWithDetails } from '@/lib/types/database';
+import { incrementCreditUsed } from './credit';
 
 // Request PTT
 export async function requestPTT(data: {
@@ -51,6 +52,13 @@ export async function issuePTT(data: {
 }) {
   const supabase = await createClient();
 
+  // Get PTT details to increment credit
+  const { data: existingPtt } = await supabase
+    .from('ptt_tokens')
+    .select('*, original_importer:original_importer_id(id)')
+    .eq('id', data.ptt_id)
+    .single();
+
   const { data: ptt, error } = await supabase
     .from('ptt_tokens')
     .update({
@@ -63,6 +71,11 @@ export async function issuePTT(data: {
     .single();
 
   if (error) throw error;
+
+  // Increment credit used for the importer when PTT is issued
+  if (existingPtt?.original_importer_id) {
+    await incrementCreditUsed(existingPtt.original_importer_id, (ptt as PTTToken).amount);
+  }
 
   // Record transfer
   await supabase.from('ptt_transfers').insert({

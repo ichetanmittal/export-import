@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function ImporterDashboard() {
   const router = useRouter();
   const [ptts, setPtts] = useState<any[]>([]);
+  const [creditInfo, setCreditInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
 
@@ -16,6 +17,7 @@ export default function ImporterDashboard() {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
       fetchPTTs(parsedUser.id);
+      fetchCreditInfo(parsedUser.id);
     }
   }, []);
 
@@ -34,6 +36,22 @@ export default function ImporterDashboard() {
       console.error('Error fetching PTTs:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCreditInfo = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/credit/info?user_id=${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCreditInfo(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching credit info:', error);
     }
   };
 
@@ -65,6 +83,72 @@ export default function ImporterDashboard() {
   return (
     <DashboardLayout role="importer">
       <div className="space-y-6">
+        {/* Credit Status Card - Prominent */}
+        {creditInfo && (
+          <div className={`p-6 rounded-lg shadow-lg border-l-4 ${
+            creditInfo.utilization_percentage > 90 ? 'bg-red-50 border-red-500' :
+            creditInfo.utilization_percentage > 75 ? 'bg-orange-50 border-orange-500' :
+            'bg-blue-50 border-blue-500'
+          }`}>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Credit Status</h3>
+                <p className="text-sm text-gray-600">Your approved credit facility</p>
+              </div>
+              <button
+                onClick={() => router.push('/importer/request-ptt')}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm font-medium"
+              >
+                Request PTT
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Credit Limit</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  ${creditInfo.credit_limit?.toLocaleString() || '0'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Credit Used</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  ${creditInfo.credit_used?.toLocaleString() || '0'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Available Credit</p>
+                <p className={`text-2xl font-bold ${
+                  creditInfo.utilization_percentage > 90 ? 'text-red-600' :
+                  creditInfo.utilization_percentage > 75 ? 'text-orange-600' :
+                  'text-green-600'
+                }`}>
+                  ${creditInfo.available_credit?.toLocaleString() || '0'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Utilization</p>
+                <p className={`text-2xl font-bold ${
+                  creditInfo.utilization_percentage > 90 ? 'text-red-600' :
+                  creditInfo.utilization_percentage > 75 ? 'text-orange-600' :
+                  'text-blue-600'
+                }`}>
+                  {creditInfo.utilization_percentage?.toFixed(1) || '0'}%
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div
+                    className={`h-2 rounded-full ${
+                      creditInfo.utilization_percentage > 90 ? 'bg-red-600' :
+                      creditInfo.utilization_percentage > 75 ? 'bg-orange-600' :
+                      'bg-blue-600'
+                    }`}
+                    style={{ width: `${Math.min(creditInfo.utilization_percentage || 0, 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-6 rounded-lg shadow">

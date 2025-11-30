@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestPTT } from '@/lib/db/ptt';
+import { validateCreditLimit } from '@/lib/db/credit';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,6 +22,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate credit limit before creating PTT request
+    const creditCheck = await validateCreditLimit(importer_id, parseFloat(amount));
+
+    if (!creditCheck.valid) {
+      return NextResponse.json(
+        {
+          error: creditCheck.message,
+          available_credit: creditCheck.available_credit,
+          requested_amount: parseFloat(amount)
+        },
+        { status: 400 }
+      );
+    }
+
     const ptt = await requestPTT({
       importer_id,
       amount,
@@ -34,11 +49,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       data: ptt,
       message: 'PTT request created successfully',
+      credit_info: {
+        available_credit: creditCheck.available_credit,
+        credit_remaining: creditCheck.available_credit - parseFloat(amount)
+      }
     }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('PTT request error:', error);
     return NextResponse.json(
-      { error: 'Failed to create PTT request' },
+      { error: error.message || 'Failed to create PTT request' },
       { status: 500 }
     );
   }

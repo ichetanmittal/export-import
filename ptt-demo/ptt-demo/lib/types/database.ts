@@ -10,6 +10,8 @@ export interface User {
   organization: string | null;
   phone: string | null;
   balance: number;
+  credit_limit: number;
+  credit_used: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;

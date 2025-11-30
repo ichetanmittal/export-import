@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { Settlement } from '@/lib/types/database';
+import { decrementCreditUsed } from './credit';
 
 // One-click settlement - handles everything in a single transaction
 export async function settlePayment(ptt_id: string) {
@@ -61,6 +62,11 @@ export async function settlePayment(ptt_id: string) {
     .eq('id', ptt_id);
 
   if (pttUpdateError) throw new Error(`Failed to update PTT status: ${pttUpdateError.message}`);
+
+  // 5.5. Decrement credit used for the original importer when PTT is settled
+  if (ptt.original_importer_id) {
+    await decrementCreditUsed(ptt.original_importer_id, ptt.amount);
+  }
 
   // 6. Record transfer for audit trail
   const { error: transferError } = await supabase.from('ptt_transfers').insert({
