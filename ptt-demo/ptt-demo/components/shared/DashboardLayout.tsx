@@ -43,13 +43,6 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  const roleColors = {
-    importer: 'bg-blue-600',
-    bank: 'bg-green-600',
-    exporter: 'bg-purple-600',
-    funder: 'bg-orange-600',
-  };
-
   const roleLabels = {
     importer: 'Importer Portal',
     bank: 'Bank Portal',
@@ -60,12 +53,19 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className={`${roleColors[role]} text-white shadow-lg`}>
+      <header className="bg-purple-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold">{roleLabels[role]}</h1>
-              <p className="text-sm opacity-90">{user.name} - {user.organization}</p>
+            <div className="flex items-center gap-4">
+              <img
+                src="/Xaults_logo_light.png"
+                alt="Xaults Logo"
+                className="h-10 w-auto"
+              />
+              <div>
+                <h1 className="text-2xl font-bold">{roleLabels[role]}</h1>
+                <p className="text-sm opacity-90">{user.name} - {user.organization}</p>
+              </div>
             </div>
             <button
               onClick={handleLogout}
