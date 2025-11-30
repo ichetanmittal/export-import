@@ -3,6 +3,7 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function PTTDetailsPage() {
   const router = useRouter();
@@ -42,7 +43,9 @@ export default function PTTDetailsPage() {
 
   const handleLockPTT = async () => {
     if (!exporterEmail) {
-      alert('Please enter exporter email');
+      toast.warning('Missing Information', {
+        description: 'Please enter exporter email',
+      });
       return;
     }
 
@@ -85,11 +88,16 @@ export default function PTTDetailsPage() {
         throw new Error('Failed to lock PTT');
       }
 
-      alert('PTT locked successfully!');
+      toast.success('PTT Locked Successfully!', {
+        description: 'The PTT has been locked with conditions',
+        duration: 4000,
+      });
       setShowLockForm(false);
       fetchPTTDetails();
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error('Failed to Lock PTT', {
+        description: error.message,
+      });
     } finally {
       setActionLoading(false);
     }
@@ -97,10 +105,13 @@ export default function PTTDetailsPage() {
 
   const handleTransferPTT = async () => {
     if (!exporterEmail) {
-      alert('Please enter exporter email to transfer');
+      toast.warning('Missing Information', {
+        description: 'Please enter exporter email to transfer',
+      });
       return;
     }
 
+    // Note: confirm() kept for now - can be replaced with custom modal if needed
     if (!confirm(`Transfer PTT to ${exporterEmail}?`)) return;
 
     setActionLoading(true);
@@ -138,11 +149,16 @@ export default function PTTDetailsPage() {
         throw new Error('Failed to transfer PTT');
       }
 
-      alert('PTT transferred successfully to exporter!');
+      toast.success('PTT Transferred Successfully!', {
+        description: `Transferred to ${exporterEmail}`,
+        duration: 4000,
+      });
       setShowTransferForm(false);
       router.push('/importer/dashboard');
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error('Failed to Transfer PTT', {
+        description: error.message,
+      });
     } finally {
       setActionLoading(false);
     }

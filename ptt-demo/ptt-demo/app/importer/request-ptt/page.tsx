@@ -3,6 +3,7 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function RequestPTTPage() {
   const router = useRouter();
@@ -48,9 +49,15 @@ export default function RequestPTTPage() {
         throw new Error(data.error || 'Failed to create PTT request');
       }
 
-      alert(`PTT requested successfully! PTT Number: ${data.data.ptt_number}`);
+      toast.success('PTT Requested Successfully!', {
+        description: `PTT Number: ${data.data.ptt_number}`,
+        duration: 5000,
+      });
       router.push('/importer/dashboard');
     } catch (err: any) {
+      toast.error('Failed to Create PTT Request', {
+        description: err.message,
+      });
       setError(err.message);
     } finally {
       setLoading(false);
