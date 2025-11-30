@@ -203,39 +203,66 @@ npm start
 
 ## Project Status
 
-**Completion: ~90%**
+**Completion: ~95%** ✅
 
 ### What's Working ✅
 - Complete authentication system
 - All 4 role-based portals
 - Full PTT lifecycle (request → issue → lock → transfer → approve → discount → settle)
+- **Supabase Storage integration for file uploads** 🆕
+- **Document upload with file validation** 🆕
+- **Document review and download with signed URLs** 🆕
 - Marketplace with discount offers
 - Ownership transfer tracking
 - Settlement workflow
 - Real-time calculations and stats
 
 ### Optional Enhancements
-- File upload integration (Supabase Storage)
 - Automated settlement triggers (cron jobs)
 - Email notifications
 - Advanced analytics dashboard
+- Enhanced security policies for file access
+
+## File Upload Feature 🆕
+
+The application now supports **real file uploads** using Supabase Storage:
+
+### Exporter Upload Flow
+1. Navigate to **Upload Documents** page
+2. Select a transferred PTT
+3. Choose document type (Commercial Invoice, Bill of Lading, etc.)
+4. Upload file (max 10MB: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX)
+5. View uploaded documents with approval status
+
+### Importer Review Flow
+1. Navigate to **Review Documents** page
+2. Click "View Docs" on any PTT
+3. See all uploaded documents with details
+4. **Download files** using secure signed URLs
+5. Approve all documents to mark PTT as redeemable
+
+**Setup Required:** See `SUPABASE-STORAGE-SETUP.md` for complete setup instructions.
 
 ## Testing the Complete Flow
 
 1. **Login as Importer** → Request PTT
 2. **Login as Bank** → Issue PTT
 3. **Login as Importer** → Lock & Transfer PTT to Exporter
-4. **Login as Exporter** → Upload documents (simulated)
-5. **Login as Importer** → Approve documents
+4. **Login as Exporter** → Upload actual document files 🆕
+5. **Login as Importer** → View and download documents → Approve 🆕
 6. **Login as Exporter** → Create discount offer
 7. **Login as Funder** → Accept offer from marketplace
 8. **Settlement** → Manual API calls (or cron automation)
 
 ## Documentation
 
+- `README.md` - This file (overview and setup)
 - `PROGRESS.md` - Development progress tracker
-- `PTT-DEMO-IMPLEMENTATION-PLAN.md` - Detailed implementation plan
+- `IMPLEMENTATION-SUMMARY.md` - Technical implementation details
+- `SUPABASE-STORAGE-SETUP.md` - **File upload setup guide** 🆕
 - `database-schema.sql` - Complete database schema
+- `database-storage-setup.sql` - **Storage bucket setup** 🆕
+- `database-rls-policies.sql` - Security policies
 
 ## License
 
