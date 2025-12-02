@@ -16,11 +16,16 @@ export default function PTTDetailsPage() {
   const [showLockForm, setShowLockForm] = useState(false);
   const [showTransferForm, setShowTransferForm] = useState(false);
 
+  // Exporters list
+  const [exporters, setExporters] = useState<any[]>([]);
+  const [loadingExporters, setLoadingExporters] = useState(false);
+
   // Lock form state
-  const [exporterEmail, setExporterEmail] = useState('');
+  const [selectedExporterId, setSelectedExporterId] = useState('');
 
   useEffect(() => {
     fetchPTTDetails();
+    fetchExporters();
   }, [pttId]);
 
   const fetchPTTDetails = async () => {
@@ -41,10 +46,29 @@ export default function PTTDetailsPage() {
     }
   };
 
+  const fetchExporters = async () => {
+    setLoadingExporters(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/users/exporters', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setExporters(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching exporters:', error);
+    } finally {
+      setLoadingExporters(false);
+    }
+  };
+
   const handleLockPTT = async () => {
-    if (!exporterEmail) {
+    if (!selectedExporterId) {
       toast.warning('Missing Information', {
-        description: 'Please enter exporter email',
+        description: 'Please select an exporter',
       });
       return;
     }
@@ -52,6 +76,7 @@ export default function PTTDetailsPage() {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
+      const selectedExporter = exporters.find(e => e.id === selectedExporterId);
 
       // Create standard conditions
       const conditions = [
@@ -67,8 +92,8 @@ export default function PTTDetailsPage() {
         },
         {
           condition_type: 'data' as const,
-          condition_key: 'beneficiary_email',
-          condition_value: exporterEmail,
+          condition_key: 'beneficiary_name',
+          condition_value: selectedExporter?.name || '',
         },
       ];
 
@@ -80,6 +105,7 @@ export default function PTTDetailsPage() {
         },
         body: JSON.stringify({
           ptt_id: pttId,
+          exporter_id: selectedExporterId,
           conditions,
         })
       });
@@ -89,7 +115,7 @@ export default function PTTDetailsPage() {
       }
 
       toast.success('PTT Locked and Transferred!', {
-        description: 'The PTT has been locked with conditions and transferred to exporter',
+        description: `The PTT has been locked and transferred to ${selectedExporter?.name}`,
         duration: 4000,
       });
       setShowLockForm(false);
@@ -272,15 +298,26 @@ export default function PTTDetailsPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Exporter Email *
+                  Select Exporter *
                 </label>
-                <input
-                  type="email"
-                  value={exporterEmail}
-                  onChange={(e) => setExporterEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="exporter@demo.com"
-                />
+                {loadingExporters ? (
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-500">
+                    Loading exporters...
+                  </div>
+                ) : (
+                  <select
+                    value={selectedExporterId}
+                    onChange={(e) => setSelectedExporterId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">-- Select an Exporter --</option>
+                    {exporters.map((exporter) => (
+                      <option key={exporter.id} value={exporter.id}>
+                        {exporter.name} {exporter.organization ? `(${exporter.organization})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <p className="text-xs text-gray-500 mt-1">
                   The exporter who will receive this PTT
                 </p>
@@ -291,14 +328,14 @@ export default function PTTDetailsPage() {
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li>• Time: Maturity date - {new Date(ptt.maturity_date).toLocaleDateString()}</li>
                   <li>• Action: Document approval required</li>
-                  <li>• Data: Beneficiary - {exporterEmail || 'Enter email above'}</li>
+                  <li>• Data: Beneficiary - {selectedExporterId ? exporters.find(e => e.id === selectedExporterId)?.name : 'Select exporter above'}</li>
                 </ul>
               </div>
 
               <div className="flex gap-4">
                 <button
                   onClick={handleLockPTT}
-                  disabled={actionLoading}
+                  disabled={actionLoading || !selectedExporterId}
                   className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 disabled:opacity-50"
                 >
                   {actionLoading ? 'Locking...' : 'Lock PTT'}

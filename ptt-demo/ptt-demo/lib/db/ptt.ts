@@ -92,6 +92,7 @@ export async function issuePTT(data: {
 // Lock PTT with conditions and auto-transfer to exporter
 export async function lockPTT(data: {
   ptt_id: string;
+  exporter_id: string;
   conditions: Array<{
     condition_type: 'time' | 'action' | 'data';
     condition_key: string;
@@ -103,34 +104,16 @@ export async function lockPTT(data: {
   // Get PTT details first
   const { data: pttDetails, error: fetchError } = await supabase
     .from('ptt_tokens')
-    .select('exporter_id, current_owner_id, amount')
+    .select('current_owner_id, amount')
     .eq('id', data.ptt_id)
     .single();
 
   if (fetchError) throw fetchError;
 
-  // Extract beneficiary email from conditions
-  const beneficiaryCondition = data.conditions.find(
-    c => c.condition_type === 'data' && c.condition_key === 'beneficiary_email'
-  );
-
-  let exporterId = pttDetails.exporter_id;
-
-  // If no exporter_id yet, look up by email from conditions
-  if (!exporterId && beneficiaryCondition) {
-    const { data: exporterUser } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', beneficiaryCondition.condition_value)
-      .single();
-
-    if (exporterUser) {
-      exporterId = exporterUser.id;
-    }
-  }
+  const exporterId = data.exporter_id;
 
   if (!exporterId) {
-    throw new Error('Exporter not found. Please provide beneficiary email in conditions.');
+    throw new Error('Exporter ID is required.');
   }
 
   // Update PTT with exporter and transfer ownership

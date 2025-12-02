@@ -4,17 +4,18 @@ import { lockPTT } from '@/lib/db/ptt';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ptt_id, conditions } = body;
+    const { ptt_id, exporter_id, conditions } = body;
 
-    if (!ptt_id || !conditions || !Array.isArray(conditions)) {
+    if (!ptt_id || !exporter_id || !conditions || !Array.isArray(conditions)) {
       return NextResponse.json(
-        { error: 'PTT ID and conditions array are required' },
+        { error: 'PTT ID, Exporter ID, and conditions array are required' },
         { status: 400 }
       );
     }
 
     const result = await lockPTT({
       ptt_id,
+      exporter_id,
       conditions,
     });
 
