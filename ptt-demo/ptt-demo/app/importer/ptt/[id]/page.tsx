@@ -130,9 +130,9 @@ export default function PTTDetailsPage() {
   };
 
   const handleTransferPTT = async () => {
-    if (!exporterEmail) {
+    if (!selectedExporterId) {
       toast.warning('Missing Information', {
-        description: 'Please enter exporter email to transfer',
+        description: 'Please select an exporter to transfer',
       });
       return;
     }
@@ -141,18 +141,7 @@ export default function PTTDetailsPage() {
     try {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-      // First, find exporter by email
-      const userResponse = await fetch(`/api/auth/user-by-email?email=${exporterEmail}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!userResponse.ok) {
-        throw new Error('Exporter not found');
-      }
-
-      const exporterData = await userResponse.json();
-      const exporterId = exporterData.data.id;
+      const selectedExporter = exporters.find(e => e.id === selectedExporterId);
 
       const response = await fetch('/api/ptt/transfer', {
         method: 'POST',
@@ -163,7 +152,7 @@ export default function PTTDetailsPage() {
         body: JSON.stringify({
           ptt_id: pttId,
           from_user_id: user.id,
-          to_user_id: exporterId,
+          to_user_id: selectedExporterId,
           transfer_type: 'conditional_payment',
         })
       });
@@ -173,7 +162,7 @@ export default function PTTDetailsPage() {
       }
 
       toast.success('PTT Transferred Successfully!', {
-        description: `Transferred to ${exporterEmail}`,
+        description: `Transferred to ${selectedExporter?.name}`,
         duration: 4000,
       });
       setShowTransferForm(false);
@@ -373,15 +362,26 @@ export default function PTTDetailsPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Exporter Email *
+                  Select Exporter *
                 </label>
-                <input
-                  type="email"
-                  value={exporterEmail}
-                  onChange={(e) => setExporterEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="exporter@demo.com"
-                />
+                {loadingExporters ? (
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-500">
+                    Loading exporters...
+                  </div>
+                ) : (
+                  <select
+                    value={selectedExporterId}
+                    onChange={(e) => setSelectedExporterId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">-- Select an Exporter --</option>
+                    {exporters.map((exporter) => (
+                      <option key={exporter.id} value={exporter.id}>
+                        {exporter.name} {exporter.organization ? `(${exporter.organization})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
@@ -394,7 +394,7 @@ export default function PTTDetailsPage() {
               <div className="flex gap-4">
                 <button
                   onClick={handleTransferPTT}
-                  disabled={actionLoading}
+                  disabled={actionLoading || !selectedExporterId}
                   className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50"
                 >
                   {actionLoading ? 'Transferring...' : 'Transfer PTT'}
