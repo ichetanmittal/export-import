@@ -127,7 +127,7 @@ export default function ExporterProfile() {
             <div className="space-y-4">
               <div className="bg-white rounded-lg p-4">
                 <label className="text-sm font-medium text-gray-500 block mb-1">Bank Name</label>
-                <p className="text-xl font-semibold text-gray-900">HDFC Bank</p>
+                <p className="text-xl font-semibold text-gray-900">ICICI Bank</p>
                 <p className="text-xs text-gray-500 mt-1">Your banking partner in India</p>
               </div>
               <div className="bg-white rounded-lg p-4">

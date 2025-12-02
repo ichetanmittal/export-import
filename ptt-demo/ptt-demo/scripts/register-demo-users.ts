@@ -29,9 +29,9 @@ const demoUsers = [
     name: 'XYZ Exports Ltd',
     role: 'exporter',
     organization: 'XYZ Exports Ltd',
-    phone: '+1-555-0103',
+    phone: '+91-22-1234-5678',
     bank_account_number: '123456789012',
-    ifsc_code: 'HDFC0001234',
+    ifsc_code: 'ICIC0001234',
     geography: 'Mumbai, India'
   },
   {
