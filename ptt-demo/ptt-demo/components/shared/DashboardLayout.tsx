@@ -94,6 +94,7 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
       { label: 'Dashboard', href: '/importer/dashboard' },
       { label: 'Request PTT', href: '/importer/request-ptt' },
       { label: 'Review Documents', href: '/importer/review-documents' },
+      { label: 'My Exporters', href: '/importer/exporters' },
       { label: 'Profile', href: '/importer/profile' },
     ],
     bank: [
@@ -106,6 +107,7 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
       { label: 'Dashboard', href: '/exporter/dashboard' },
       { label: 'Upload Documents', href: '/exporter/upload-documents' },
       { label: 'Discount Offers', href: '/exporter/discount-offers' },
+      { label: 'My Importers', href: '/exporter/importers' },
       { label: 'Profile', href: '/exporter/profile' },
     ],
     funder: [
