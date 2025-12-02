@@ -2,6 +2,7 @@
 
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function SettlementsPage() {
   const [ptts, setPtts] = useState<any[]>([]);
@@ -38,10 +39,6 @@ export default function SettlementsPage() {
   };
 
   const handleSettle = async (pttId: string, pttNumber: string, amount: number) => {
-    if (!confirm(`Settle PTT ${pttNumber}? This will transfer $${amount.toLocaleString()} from bank treasury to the beneficiary.`)) {
-      return;
-    }
-
     setProcessing(pttId);
     try {
       const token = localStorage.getItem('token');
@@ -61,10 +58,16 @@ export default function SettlementsPage() {
         throw new Error(data.error || 'Failed to settle PTT');
       }
 
-      alert(`✅ ${data.message}\n\nPayment Reference: ${data.data.payment_reference}`);
+      toast.success('Settlement Completed!', {
+        description: `PTT ${pttNumber} settled. Payment Reference: ${data.data.payment_reference}`,
+        duration: 5000,
+      });
       fetchSettlementPTTs();
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error('Settlement Failed', {
+        description: error.message,
+        duration: 4000,
+      });
     } finally {
       setProcessing(null);
     }

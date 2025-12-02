@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       data: result,
-      message: 'PTT locked successfully with conditions',
+      message: 'PTT locked with conditions and transferred to exporter',
     }, { status: 200 });
   } catch (error) {
     console.error('Lock PTT error:', error);

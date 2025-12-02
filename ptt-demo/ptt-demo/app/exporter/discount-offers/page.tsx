@@ -3,6 +3,7 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 function DiscountOffersContent() {
   const router = useRouter();
@@ -77,13 +78,19 @@ function DiscountOffersContent() {
 
   const handleSubmitOffer = async () => {
     if (!selectedPtt) {
-      alert('Please select a PTT');
+      toast.warning('Missing Selection', {
+        description: 'Please select a PTT',
+        duration: 3000,
+      });
       return;
     }
 
     const rate = parseFloat(discountRate);
     if (rate < 0.1 || rate > 20) {
-      alert('Discount rate must be between 0.1% and 20%');
+      toast.warning('Invalid Discount Rate', {
+        description: 'Discount rate must be between 0.1% and 20%',
+        duration: 3000,
+      });
       return;
     }
 
@@ -120,7 +127,10 @@ function DiscountOffersContent() {
           throw new Error(errorData.error || 'Failed to update discount offer');
         }
 
-        alert('Discount offer updated successfully!');
+        toast.success('Offer Updated!', {
+          description: 'Discount offer updated successfully',
+          duration: 4000,
+        });
       } else {
         // Create new offer
         const response = await fetch('/api/discounting/offer', {
@@ -142,12 +152,18 @@ function DiscountOffersContent() {
           throw new Error(errorData.error || 'Failed to create discount offer');
         }
 
-        alert('Discount offer created successfully! Your PTT is now listed in the marketplace.');
+        toast.success('Offer Created!', {
+          description: 'Your PTT is now listed in the marketplace',
+          duration: 4000,
+        });
       }
 
       router.push('/exporter/dashboard');
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error('Failed to Submit Offer', {
+        description: error.message,
+        duration: 4000,
+      });
     } finally {
       setSubmitting(false);
     }

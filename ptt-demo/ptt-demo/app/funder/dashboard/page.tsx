@@ -2,6 +2,7 @@
 
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function FunderDashboard() {
   const [offers, setOffers] = useState<any[]>([]);
@@ -36,8 +37,6 @@ export default function FunderDashboard() {
   };
 
   const handleAcceptOffer = async (offerId: string, askingPrice: number) => {
-    if (!confirm(`Accept this offer for $${askingPrice.toLocaleString()}?`)) return;
-
     setAccepting(offerId);
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -59,10 +58,16 @@ export default function FunderDashboard() {
         throw new Error('Failed to accept offer');
       }
 
-      alert('Offer accepted! Payment processed and PTT transferred to your portfolio.');
+      toast.success('Offer Accepted!', {
+        description: 'Payment processed and PTT transferred to your portfolio',
+        duration: 5000,
+      });
       fetchMarketplace();
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error('Failed to Accept Offer', {
+        description: error.message,
+        duration: 4000,
+      });
     } finally {
       setAccepting(null);
     }

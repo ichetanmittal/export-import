@@ -3,6 +3,7 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface Document {
   id: string;
@@ -91,13 +92,14 @@ export default function ReviewDocumentsPage() {
       window.open(data.signedUrl, '_blank');
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download file. Please try again.');
+      toast.error('Download Failed', {
+        description: 'Failed to download file. Please try again.',
+        duration: 4000,
+      });
     }
   };
 
   const handleApproveDocuments = async (pttId: string) => {
-    if (!confirm('Approve all documents and mark PTT as redeemable?')) return;
-
     setApproving(pttId);
     try {
       const token = localStorage.getItem('token');
@@ -121,10 +123,16 @@ export default function ReviewDocumentsPage() {
         throw new Error('Failed to approve documents');
       }
 
-      alert('Documents approved! PTT is now redeemable.');
+      toast.success('Documents Approved!', {
+        description: 'PTT is now redeemable for settlement',
+        duration: 4000,
+      });
       fetchPTTsWithDocuments();
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error('Approval Failed', {
+        description: error.message,
+        duration: 4000,
+      });
     } finally {
       setApproving(null);
     }

@@ -88,8 +88,8 @@ export default function PTTDetailsPage() {
         throw new Error('Failed to lock PTT');
       }
 
-      toast.success('PTT Locked Successfully!', {
-        description: 'The PTT has been locked with conditions',
+      toast.success('PTT Locked and Transferred!', {
+        description: 'The PTT has been locked with conditions and transferred to exporter',
         duration: 4000,
       });
       setShowLockForm(false);
@@ -110,9 +110,6 @@ export default function PTTDetailsPage() {
       });
       return;
     }
-
-    // Note: confirm() kept for now - can be replaced with custom modal if needed
-    if (!confirm(`Transfer PTT to ${exporterEmail}?`)) return;
 
     setActionLoading(true);
     try {

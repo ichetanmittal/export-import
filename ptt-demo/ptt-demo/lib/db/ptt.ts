@@ -89,7 +89,7 @@ export async function issuePTT(data: {
   return ptt as PTTToken;
 }
 
-// Lock PTT with conditions
+// Lock PTT with conditions and auto-transfer to exporter
 export async function lockPTT(data: {
   ptt_id: string;
   conditions: Array<{
@@ -100,11 +100,50 @@ export async function lockPTT(data: {
 }) {
   const supabase = await createClient();
 
-  // Update PTT status
-  const { error: pttError } = await supabase
+  // Get PTT details first
+  const { data: pttDetails, error: fetchError } = await supabase
     .from('ptt_tokens')
-    .update({ status: 'locked' })
-    .eq('id', data.ptt_id);
+    .select('exporter_id, current_owner_id, amount')
+    .eq('id', data.ptt_id)
+    .single();
+
+  if (fetchError) throw fetchError;
+
+  // Extract beneficiary email from conditions
+  const beneficiaryCondition = data.conditions.find(
+    c => c.condition_type === 'data' && c.condition_key === 'beneficiary_email'
+  );
+
+  let exporterId = pttDetails.exporter_id;
+
+  // If no exporter_id yet, look up by email from conditions
+  if (!exporterId && beneficiaryCondition) {
+    const { data: exporterUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', beneficiaryCondition.condition_value)
+      .single();
+
+    if (exporterUser) {
+      exporterId = exporterUser.id;
+    }
+  }
+
+  if (!exporterId) {
+    throw new Error('Exporter not found. Please provide beneficiary email in conditions.');
+  }
+
+  // Update PTT with exporter and transfer ownership
+  const { data: updatedPtt, error: pttError } = await supabase
+    .from('ptt_tokens')
+    .update({
+      exporter_id: exporterId,
+      status: 'transferred',
+      current_owner_id: exporterId
+    })
+    .eq('id', data.ptt_id)
+    .select()
+    .single();
 
   if (pttError) throw pttError;
 
@@ -121,7 +160,16 @@ export async function lockPTT(data: {
 
   if (condError) throw condError;
 
-  return conditions as PTTCondition[];
+  // Record the transfer to exporter
+  await supabase.from('ptt_transfers').insert({
+    ptt_id: data.ptt_id,
+    from_user_id: pttDetails.current_owner_id,
+    to_user_id: exporterId,
+    transfer_type: 'conditional_payment',
+    amount: pttDetails.amount,
+  });
+
+  return { conditions: conditions as PTTCondition[], ptt: updatedPtt as PTTToken };
 }
 
 // Transfer PTT

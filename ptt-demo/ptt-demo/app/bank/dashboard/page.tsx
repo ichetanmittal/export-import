@@ -2,6 +2,7 @@
 
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function BankDashboard() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -55,8 +56,6 @@ export default function BankDashboard() {
   };
 
   const handleIssuePTT = async (pttId: string) => {
-    if (!confirm('Are you sure you want to issue this PTT?')) return;
-
     setIssuing(pttId);
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -79,11 +78,17 @@ export default function BankDashboard() {
         throw new Error('Failed to issue PTT');
       }
 
-      alert('PTT issued successfully!');
+      toast.success('PTT Issued Successfully!', {
+        description: 'The PTT has been issued and credit has been allocated',
+        duration: 4000,
+      });
       fetchRequests();
       fetchAllPtts();
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error('Failed to Issue PTT', {
+        description: error.message,
+        duration: 4000,
+      });
     } finally {
       setIssuing(null);
     }
