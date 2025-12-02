@@ -10,8 +10,8 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "PTT Demo - Trade Finance Platform",
-  description: "Promissory Token Transfer demonstration platform",
+  title: "Trade Finance Platform",
+  description: "Promissory Token Transfer platform for trade finance",
 };
 
 export default function RootLayout({
