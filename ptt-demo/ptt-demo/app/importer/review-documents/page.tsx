@@ -165,14 +165,8 @@ export default function ReviewDocumentsPage() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex justify-between items-center mb-4">
+          <div className="mb-4">
             <h2 className="text-xl font-semibold">PTTs Awaiting Document Approval</h2>
-            <button
-              onClick={fetchPTTsWithDocuments}
-              className="text-purple-600 hover:text-purple-700 text-sm"
-            >
-              🔄 Refresh
-            </button>
           </div>
 
           {loading ? (

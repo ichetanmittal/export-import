@@ -228,7 +228,9 @@ export async function getPTTsByUserId(user_id: string) {
       *,
       issuer_bank:issuer_bank_id(id, name, organization),
       current_owner:current_owner_id(id, name, organization),
+      original_importer:original_importer_id(id, name, organization),
       exporter:exporter_id(id, name, organization),
+      documents:documents(*),
       discounting_offers(
         id,
         asking_price,

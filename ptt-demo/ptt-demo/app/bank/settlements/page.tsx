@@ -190,18 +190,6 @@ export default function SettlementsPage() {
             </div>
           )}
         </div>
-
-        {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-          <h3 className="text-sm font-semibold text-blue-900 mb-2">💡 How Settlement Works:</h3>
-          <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-            <li>Click <strong>"Settle PTT"</strong> to initiate one-click settlement</li>
-            <li>Money is automatically transferred from bank treasury to the beneficiary (funder)</li>
-            <li>PTT status changes to "settled" and appears in settlement history</li>
-            <li>Both bank and beneficiary balances are updated instantly</li>
-            <li>A unique payment reference is auto-generated for tracking</li>
-          </ul>
-        </div>
       </div>
     </DashboardLayout>
   );

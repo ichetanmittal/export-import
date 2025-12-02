@@ -7,9 +7,9 @@ const demoUsers = [
   {
     email: 'importer@demo.com',
     password: 'Demo@123',
-    name: 'ABC Imports Inc',
+    name: 'Gf Machining Solutions Pte Ltd SG',
     role: 'importer',
-    organization: 'ABC Imports Inc',
+    organization: 'Gf Machining Solutions Pte Ltd SG',
     phone: '+65-6123-4567',
     bank_account_number: '001-234567-8',
     ifsc_code: 'DBSSSGSG',
@@ -26,9 +26,9 @@ const demoUsers = [
   {
     email: 'exporter@demo.com',
     password: 'Demo@123',
-    name: 'XYZ Exports Ltd',
+    name: 'S G Fabtex Pvt Ltd India',
     role: 'exporter',
-    organization: 'XYZ Exports Ltd',
+    organization: 'S G Fabtex Pvt Ltd India',
     phone: '+91-22-1234-5678',
     bank_account_number: '123456789012',
     ifsc_code: 'ICIC0001234',

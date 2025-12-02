@@ -75,7 +75,10 @@ export default function ImporterDashboard() {
 
   const stats = {
     active: ptts.filter(p => !['settled', 'cancelled'].includes(p.status)).length,
-    pendingApprovals: ptts.filter(p => p.status === 'transferred').length,
+    pendingApprovals: ptts.filter(p => {
+      // Only count as pending approval if documents have been uploaded
+      return p.status === 'transferred' && p.documents && p.documents.length > 0;
+    }).length,
     totalValue: ptts.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0),
     settled: ptts.filter(p => p.status === 'settled').length,
   };
@@ -85,11 +88,7 @@ export default function ImporterDashboard() {
       <div className="space-y-6">
         {/* Credit Status Card - Prominent */}
         {creditInfo && (
-          <div className={`p-6 rounded-lg shadow-lg border-l-4 ${
-            creditInfo.utilization_percentage > 90 ? 'bg-red-50 border-red-500' :
-            creditInfo.utilization_percentage > 75 ? 'bg-orange-50 border-orange-500' :
-            'bg-blue-50 border-blue-500'
-          }`}>
+          <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Credit Status</h3>
@@ -110,7 +109,7 @@ export default function ImporterDashboard() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Credit Used</p>
+                <p className="text-sm text-gray-600">Tokens Issued</p>
                 <p className="text-2xl font-bold text-gray-900">
                   ${creditInfo.credit_used?.toLocaleString() || '0'}
                 </p>

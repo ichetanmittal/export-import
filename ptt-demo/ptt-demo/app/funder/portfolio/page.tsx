@@ -34,8 +34,27 @@ export default function FunderPortfolio() {
   const stats = {
     portfolioPtts: portfolio.length,
     portfolioValue: portfolio.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0),
-    expectedReturns: portfolio.reduce((sum, p) => {
-      return sum + parseFloat(p.amount || 0) * 0.05;
+    realizedReturns: portfolio.reduce((sum, p) => {
+      if (p.status === 'settled') {
+        const faceValue = parseFloat(p.amount || 0);
+        const acceptedOffer = p.discounting_offers?.find((offer: any) =>
+          offer.status === 'accepted' || offer.status === 'paid'
+        );
+        const purchasePrice = acceptedOffer ? parseFloat(acceptedOffer.asking_price) : faceValue * 0.95;
+        return sum + (faceValue - purchasePrice);
+      }
+      return sum;
+    }, 0),
+    unrealizedReturns: portfolio.reduce((sum, p) => {
+      if (p.status === 'discounted') {
+        const faceValue = parseFloat(p.amount || 0);
+        const acceptedOffer = p.discounting_offers?.find((offer: any) =>
+          offer.status === 'accepted' || offer.status === 'paid'
+        );
+        const purchasePrice = acceptedOffer ? parseFloat(acceptedOffer.asking_price) : faceValue * 0.95;
+        return sum + (faceValue - purchasePrice);
+      }
+      return sum;
     }, 0),
   };
 
@@ -45,7 +64,7 @@ export default function FunderPortfolio() {
         <h1 className="text-2xl font-bold text-gray-900">My Portfolio</h1>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Portfolio PTTs</h3>
             <p className="text-3xl font-bold text-blue-600 mt-2">{stats.portfolioPtts}</p>
@@ -55,8 +74,14 @@ export default function FunderPortfolio() {
             <p className="text-3xl font-bold text-green-600 mt-2">${stats.portfolioValue.toLocaleString()}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Expected Returns</h3>
-            <p className="text-3xl font-bold text-purple-600 mt-2">${stats.expectedReturns.toLocaleString()}</p>
+            <h3 className="text-sm font-medium text-gray-500">Realized Returns</h3>
+            <p className="text-3xl font-bold text-green-600 mt-2">${stats.realizedReturns.toLocaleString()}</p>
+            <p className="text-xs text-gray-400 mt-1">From settled PTTs</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500">Unrealized Returns</h3>
+            <p className="text-3xl font-bold text-purple-600 mt-2">${stats.unrealizedReturns.toLocaleString()}</p>
+            <p className="text-xs text-gray-400 mt-1">From active PTTs</p>
           </div>
         </div>
 

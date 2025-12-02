@@ -67,3 +67,27 @@ export async function getUserById(id: string) {
 export async function verifyPassword(plainPassword: string, hashedPassword: string) {
   return bcrypt.compare(plainPassword, hashedPassword);
 }
+
+export async function updateUser(
+  id: string,
+  updates: {
+    name?: string;
+    organization?: string;
+    phone?: string;
+    bank_account_number?: string;
+    ifsc_code?: string;
+    geography?: string;
+  }
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('users')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as User;
+}

@@ -93,7 +93,7 @@ export default function FunderDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+          <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Account Balance</h3>
             <p className="text-3xl font-bold text-blue-600 mt-2">
               ${user?.balance ? parseFloat(user.balance).toLocaleString() : '0'}
@@ -160,7 +160,7 @@ export default function FunderDashboard() {
                         <button
                           onClick={() => handleAcceptOffer(offer.id, parseFloat(offer.asking_price))}
                           disabled={accepting === offer.id}
-                          className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 disabled:opacity-50"
+                          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
                         >
                           {accepting === offer.id ? 'Processing...' : 'Accept Offer'}
                         </button>

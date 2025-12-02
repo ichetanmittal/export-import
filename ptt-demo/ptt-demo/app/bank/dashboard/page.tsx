@@ -106,7 +106,7 @@ export default function BankDashboard() {
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+          <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Treasury Balance</h3>
             <p className="text-3xl font-bold text-green-600 mt-2">
               ${user?.balance ? parseFloat(user.balance).toLocaleString() : '0'}

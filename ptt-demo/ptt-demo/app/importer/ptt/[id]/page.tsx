@@ -180,7 +180,7 @@ export default function PTTDetailsPage() {
     const colors: any = {
       requested: 'bg-yellow-100 text-yellow-800',
       issued: 'bg-blue-100 text-blue-800',
-      locked: 'bg-purple-100 text-purple-800',
+      locked: 'bg-blue-100 text-blue-800',
       transferred: 'bg-indigo-100 text-indigo-800',
       redeemable: 'bg-green-100 text-green-800',
       discounted: 'bg-orange-100 text-orange-800',
@@ -325,7 +325,7 @@ export default function PTTDetailsPage() {
                 <button
                   onClick={handleLockPTT}
                   disabled={actionLoading || !selectedExporterId}
-                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 disabled:opacity-50"
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
                 >
                   {actionLoading ? 'Locking...' : 'Lock PTT'}
                 </button>
@@ -341,14 +341,14 @@ export default function PTTDetailsPage() {
         )}
 
         {ptt.status === 'locked' && !showTransferForm && (
-          <div className="bg-purple-50 border border-purple-200 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-purple-900 mb-2">Next Step: Transfer PTT</h3>
-            <p className="text-purple-700 mb-4">
+          <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">Next Step: Transfer PTT</h3>
+            <p className="text-blue-700 mb-4">
               Transfer this locked PTT to the exporter.
             </p>
             <button
               onClick={() => setShowTransferForm(true)}
-              className="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700"
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
             >
               Transfer to Exporter
             </button>

@@ -100,7 +100,7 @@ export default function OutstandingPTTs() {
                 <thead>
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PTT Number</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Importer</th>
+                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Importer</th> */}
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current Owner</th>
@@ -114,9 +114,9 @@ export default function OutstandingPTTs() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {ptt.ptt_number}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {ptt.original_importer?.name || 'N/A'}
-                      </td>
+                      {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {ptt.original_importer?.organization || ptt.original_importer?.name || 'N/A'}
+                      </td> */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {ptt.currency} {parseFloat(ptt.amount).toLocaleString()}
                       </td>
@@ -124,7 +124,7 @@ export default function OutstandingPTTs() {
                         {getStatusBadge(ptt.status)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {ptt.current_owner?.name || 'N/A'}
+                        {ptt.current_owner?.organization || ptt.current_owner?.name || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(ptt.maturity_date).toLocaleDateString()}
