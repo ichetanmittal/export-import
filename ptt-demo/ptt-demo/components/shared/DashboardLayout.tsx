@@ -67,12 +67,12 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
         };
       } else if (org.includes('dbs')) {
         return {
-          navbar: 'bg-red-500',
-          navbarHover: 'hover:bg-red-600',
-          sidebarHover: 'hover:bg-red-50 hover:text-red-500',
-          button: 'bg-red-500',
-          buttonHover: 'hover:bg-red-600',
-          accent: 'red',
+          navbar: 'bg-blue-600',
+          navbarHover: 'hover:bg-blue-700',
+          sidebarHover: 'hover:bg-blue-50 hover:text-blue-600',
+          button: 'bg-blue-600',
+          buttonHover: 'hover:bg-blue-700',
+          accent: 'blue',
         };
       }
     }
