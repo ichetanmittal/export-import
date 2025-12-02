@@ -12,13 +12,42 @@ export default function BankDashboard() {
   const [issuing, setIssuing] = useState<string | null>(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
+    fetchUserData();
     fetchRequests();
     fetchAllPtts();
   }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+
+        // Fetch fresh user data from database to get current balance
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/auth/user/${parsedUser.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          // Update localStorage with fresh data
+          localStorage.setItem('user', JSON.stringify(data.user));
+        } else {
+          // Fallback to localStorage data if API fails
+          setUser(parsedUser);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Fallback to localStorage data
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    }
+  };
 
   const fetchRequests = async () => {
     try {
