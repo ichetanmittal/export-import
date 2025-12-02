@@ -1,11 +1,11 @@
-const UPDATE_API_URL = 'http://localhost:3000';
+const MAKER_UPDATE_API_URL = 'http://localhost:3000';
 
 async function updateBankUserToMaker() {
   try {
     console.log('🔄 Updating existing bank user to maker role...\n');
 
     // First, get the bank user by email
-    const getUserResponse = await fetch(`${UPDATE_API_URL}/api/auth/user-by-email?email=bank@demo.com`);
+    const getUserResponse = await fetch(`${MAKER_UPDATE_API_URL}/api/auth/user-by-email?email=bank@demo.com`);
 
     if (!getUserResponse.ok) {
       console.error('❌ Could not find bank user');
@@ -19,7 +19,7 @@ async function updateBankUserToMaker() {
     console.log(`Current bank_role: ${bankUser.bank_role || 'not set'}\n`);
 
     // Update the user to have maker role
-    const updateResponse = await fetch(`${UPDATE_API_URL}/api/auth/user/${bankUser.id}`, {
+    const updateResponse = await fetch(`${MAKER_UPDATE_API_URL}/api/auth/user/${bankUser.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

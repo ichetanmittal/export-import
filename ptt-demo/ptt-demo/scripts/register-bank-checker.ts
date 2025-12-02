@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000';
+const CHECKER_API_URL = 'http://localhost:3000';
 
 interface RegisterData {
   email: string;
@@ -14,7 +14,7 @@ async function registerUser(userData: RegisterData) {
   try {
     console.log(`Registering ${userData.name}...`);
 
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    const response = await fetch(`${CHECKER_API_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
