@@ -41,27 +41,63 @@ export default function SettlementsPage() {
   const handleSettle = async (pttId: string, pttNumber: string, amount: number) => {
     setProcessing(pttId);
     try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = localStorage.getItem('token');
 
-      const response = await fetch('/api/settlement/settle', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ ptt_id: pttId })
-      });
+      // Check if user is a maker or has admin/checker role
+      if (user.bank_role === 'maker') {
+        // Create pending action for approval
+        const response = await fetch('/api/bank/pending-actions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            action_type: 'settle_ptt',
+            ptt_id: pttId,
+            initiated_by: user.id,
+            action_data: {
+              ptt_id: pttId,
+              ptt_number: pttNumber,
+              amount: amount
+            }
+          })
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to settle PTT');
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to submit settlement for approval');
+        }
+
+        toast.success('Settlement Submitted!', {
+          description: 'Waiting for checker approval to proceed',
+          duration: 4000,
+        });
+      } else {
+        // Direct settlement for admin/checker or users without bank_role
+        const response = await fetch('/api/settlement/settle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ ptt_id: pttId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to settle PTT');
+        }
+
+        toast.success('Settlement Completed!', {
+          description: `PTT ${pttNumber} settled. Payment Reference: ${data.data.payment_reference}`,
+          duration: 5000,
+        });
       }
 
-      toast.success('Settlement Completed!', {
-        description: `PTT ${pttNumber} settled. Payment Reference: ${data.data.payment_reference}`,
-        duration: 5000,
-      });
       fetchSettlementPTTs();
     } catch (error: any) {
       toast.error('Settlement Failed', {

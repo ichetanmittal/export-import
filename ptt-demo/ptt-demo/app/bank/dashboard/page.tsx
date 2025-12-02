@@ -90,29 +90,63 @@ export default function BankDashboard() {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = localStorage.getItem('token');
 
-      const response = await fetch('/api/ptt/issue', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ptt_id: pttId,
-          bank_id: user.id,
-          backing_type: 'treasury'
-        })
-      });
+      // Check if user is a maker or has admin/checker role
+      if (user.bank_role === 'maker') {
+        // Create pending action for approval
+        const response = await fetch('/api/bank/pending-actions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            action_type: 'issue_ptt',
+            ptt_id: pttId,
+            initiated_by: user.id,
+            action_data: {
+              ptt_id: pttId,
+              bank_id: user.id,
+              backing_type: 'treasury'
+            }
+          })
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to issue PTT');
+        if (!response.ok) {
+          throw new Error('Failed to submit PTT issuance for approval');
+        }
+
+        toast.success('PTT Issuance Submitted!', {
+          description: 'Waiting for checker approval to proceed',
+          duration: 4000,
+        });
+      } else {
+        // Direct issue for admin/checker or users without bank_role
+        const response = await fetch('/api/ptt/issue', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            ptt_id: pttId,
+            bank_id: user.id,
+            backing_type: 'treasury'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to issue PTT');
+        }
+
+        toast.success('PTT Issued Successfully!', {
+          description: 'The PTT has been issued and credit has been allocated',
+          duration: 4000,
+        });
       }
 
-      toast.success('PTT Issued Successfully!', {
-        description: 'The PTT has been issued and credit has been allocated',
-        duration: 4000,
-      });
       fetchRequests();
       fetchAllPtts();
+      fetchUserData();
     } catch (error: any) {
       toast.error('Failed to Issue PTT', {
         description: error.message,

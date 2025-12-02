@@ -100,6 +100,7 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
       { label: 'Dashboard', href: '/bank/dashboard' },
       { label: 'Outstanding PTTs', href: '/bank/outstanding-ptts' },
       { label: 'Settlements', href: '/bank/settlements' },
+      { label: 'Pending Approvals', href: '/bank/pending-approvals' },
     ],
     exporter: [
       { label: 'Dashboard', href: '/exporter/dashboard' },

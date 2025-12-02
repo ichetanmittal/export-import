@@ -100,7 +100,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-4 text-center text-sm text-gray-600">
+        {/* <div className="mt-4 text-center text-sm text-gray-600">
           <p>Demo Credentials:</p>
           <div className="mt-2 space-y-1 text-xs">
             <p>importer@demo.com / Demo@123</p>
@@ -108,7 +108,7 @@ export default function LoginPage() {
             <p>exporter@demo.com / Demo@123</p>
             <p>funder@demo.com / Demo@123</p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

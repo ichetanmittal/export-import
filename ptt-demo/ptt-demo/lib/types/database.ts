@@ -16,6 +16,7 @@ export interface User {
   credit_limit: number;
   credit_used: number;
   is_active: boolean;
+  bank_role: 'maker' | 'checker' | 'admin' | null;
   created_at: string;
   updated_at: string;
 }
@@ -154,6 +155,23 @@ export interface Settlement {
   updated_at: string;
 }
 
+// Bank Actions (Maker-Checker)
+export type BankActionType = 'issue_ptt' | 'settle_ptt';
+export type BankActionStatus = 'pending' | 'approved' | 'rejected';
+
+export interface PendingBankAction {
+  id: string;
+  action_type: BankActionType;
+  ptt_id: string | null;
+  initiated_by: string;
+  approved_by: string | null;
+  status: BankActionStatus;
+  action_data: any;
+  rejection_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   data?: T;
@@ -176,4 +194,10 @@ export interface DiscountingOfferWithDetails extends DiscountingOffer {
   ptt: PTTToken;
   exporter: User;
   funder?: User;
+}
+
+export interface PendingBankActionWithDetails extends PendingBankAction {
+  ptt?: PTTToken;
+  initiated_by_user: User;
+  approved_by_user?: User;
 }
