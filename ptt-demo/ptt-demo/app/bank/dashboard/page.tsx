@@ -23,7 +23,7 @@ export default function BankDashboard() {
       if (userData) {
         const parsedUser = JSON.parse(userData);
 
-        // Fetch fresh user data from database to get current balance
+        // Fetch fresh user data from database
         const token = localStorage.getItem('token');
         const response = await fetch(`/api/auth/user/${parsedUser.id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -31,9 +31,24 @@ export default function BankDashboard() {
 
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
+          const freshUser = data.user;
+
+          // For bank users, fetch total treasury from all users in the same bank
+          if (freshUser.role === 'bank' && freshUser.organization) {
+            const bankResponse = await fetch(`/api/bank/treasury/${encodeURIComponent(freshUser.organization)}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (bankResponse.ok) {
+              const bankData = await bankResponse.json();
+              // Override individual balance with bank's total treasury
+              freshUser.balance = bankData.totalTreasury;
+            }
+          }
+
+          setUser(freshUser);
           // Update localStorage with fresh data
-          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('user', JSON.stringify(freshUser));
         } else {
           // Fallback to localStorage data if API fails
           setUser(parsedUser);
@@ -71,7 +86,13 @@ export default function BankDashboard() {
     try {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const response = await fetch(`/api/ptt/user/${user.id}`, {
+
+      // For bank users, fetch PTTs by organization (all PTTs from their bank)
+      const endpoint = user.role === 'bank' && user.organization
+        ? `/api/ptt/bank/${encodeURIComponent(user.organization)}`
+        : `/api/ptt/user/${user.id}`;
+
+      const response = await fetch(endpoint, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

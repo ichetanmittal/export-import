@@ -247,6 +247,51 @@ export async function getPTTsByUserId(user_id: string) {
   return data;
 }
 
+// Get PTTs by bank organization (for bank users to see all PTTs from their bank)
+export async function getPTTsByBankOrganization(organization: string) {
+  const supabase = await createClient();
+
+  // First get all users from this bank organization
+  const { data: bankUsers, error: usersError } = await supabase
+    .from('users')
+    .select('id')
+    .eq('organization', organization)
+    .eq('role', 'bank');
+
+  if (usersError) throw usersError;
+
+  const bankUserIds = bankUsers.map(u => u.id);
+
+  if (bankUserIds.length === 0) {
+    return [];
+  }
+
+  // Get all PTTs issued by any user from this bank
+  const { data, error } = await supabase
+    .from('ptt_tokens')
+    .select(`
+      *,
+      issuer_bank:issuer_bank_id(id, name, organization),
+      current_owner:current_owner_id(id, name, organization),
+      original_importer:original_importer_id(id, name, organization),
+      exporter:exporter_id(id, name, organization),
+      documents:documents(*),
+      discounting_offers(
+        id,
+        asking_price,
+        discount_rate,
+        status,
+        accepted_at,
+        exporter:exporter_id(id, name, organization)
+      )
+    `)
+    .in('issuer_bank_id', bankUserIds)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
 // Mark PTT as redeemable
 export async function markPTTAsRedeemable(ptt_id: string) {
   const supabase = await createClient();
