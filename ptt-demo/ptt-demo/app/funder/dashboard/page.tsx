@@ -127,6 +127,7 @@ export default function FunderDashboard() {
                 <thead>
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exporter Report</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issuing Bank</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Face Value</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asking Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount %</th>
@@ -155,6 +156,9 @@ export default function FunderDashboard() {
                             View Financial Report
                           </a>
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        {offer.ptt?.issuer_bank?.organization || offer.ptt?.issuer_bank?.name || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {offer.ptt?.currency} {parseFloat(offer.ptt?.amount).toLocaleString()}
