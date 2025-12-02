@@ -9,6 +9,9 @@ export interface User {
   role: UserRole;
   organization: string | null;
   phone: string | null;
+  bank_account_number: string | null;
+  ifsc_code: string | null;
+  geography: string | null;
   balance: number;
   credit_limit: number;
   credit_used: number;

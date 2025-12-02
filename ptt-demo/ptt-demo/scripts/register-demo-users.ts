@@ -10,15 +10,18 @@ const demoUsers = [
     name: 'ABC Imports Inc',
     role: 'importer',
     organization: 'ABC Imports Inc',
-    phone: '+1-555-0101'
+    phone: '+65-6123-4567',
+    bank_account_number: '001-234567-8',
+    ifsc_code: 'DBSSSGSG',
+    geography: 'Singapore'
   },
   {
     email: 'bank@demo.com',
     password: 'Demo@123',
-    name: 'Global Trade Bank',
+    name: 'DBS Bank',
     role: 'bank',
-    organization: 'Global Trade Bank',
-    phone: '+1-555-0102'
+    organization: 'DBS Bank',
+    phone: '+65-6878-8888'
   },
   {
     email: 'exporter@demo.com',
@@ -26,7 +29,10 @@ const demoUsers = [
     name: 'XYZ Exports Ltd',
     role: 'exporter',
     organization: 'XYZ Exports Ltd',
-    phone: '+1-555-0103'
+    phone: '+1-555-0103',
+    bank_account_number: '123456789012',
+    ifsc_code: 'HDFC0001234',
+    geography: 'Mumbai, India'
   },
   {
     email: 'funder@demo.com',

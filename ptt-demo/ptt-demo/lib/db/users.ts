@@ -9,6 +9,9 @@ export async function createUser(data: {
   role: User['role'];
   organization?: string;
   phone?: string;
+  bank_account_number?: string;
+  ifsc_code?: string;
+  geography?: string;
 }) {
   const supabase = await createClient();
 
@@ -24,6 +27,9 @@ export async function createUser(data: {
       role: data.role,
       organization: data.organization || null,
       phone: data.phone || null,
+      bank_account_number: data.bank_account_number || null,
+      ifsc_code: data.ifsc_code || null,
+      geography: data.geography || null,
     })
     .select()
     .single();
