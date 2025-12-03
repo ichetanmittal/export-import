@@ -9,13 +9,11 @@ export default function ImporterDashboard() {
   const [ptts, setPtts] = useState<any[]>([]);
   const [creditInfo, setCreditInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
       const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
       fetchPTTs(parsedUser.id);
       fetchCreditInfo(parsedUser.id);
     }
@@ -151,7 +149,28 @@ export default function ImporterDashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Active PTTs</h3>
+            <h3 className="text-sm font-medium text-gray-500 flex items-center gap-1">
+              Active PTTs
+              <div className="group relative">
+                <svg
+                  className="w-4 h-4 text-gray-400 cursor-help"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg z-10">
+                  PTT: Programmable Trade Token
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
+            </h3>
             <p className="text-3xl font-bold text-blue-600 mt-2">{stats.active}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
@@ -170,7 +189,28 @@ export default function ImporterDashboard() {
 
         {/* Recent PTTs */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">My PTTs</h2>
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            My PTTs
+            <div className="group relative">
+              <svg
+                className="w-5 h-5 text-gray-400 cursor-help"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-56 p-3 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10">
+                PTT: Programmable Trade Token
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+              </div>
+            </div>
+          </h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">Loading...</div>
           ) : ptts.length === 0 ? (

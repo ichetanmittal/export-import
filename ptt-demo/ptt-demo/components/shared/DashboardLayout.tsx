@@ -54,36 +54,14 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
 
   // Determine theme colors based on role and organization
   const getThemeColors = () => {
-    if (role === 'bank') {
-      const org = user.organization?.toLowerCase() || '';
-      if (org.includes('icici')) {
-        return {
-          navbar: 'bg-orange-600',
-          navbarHover: 'hover:bg-orange-700',
-          sidebarHover: 'hover:bg-orange-50 hover:text-orange-600',
-          button: 'bg-orange-600',
-          buttonHover: 'hover:bg-orange-700',
-          accent: 'orange',
-        };
-      } else if (org.includes('dbs')) {
-        return {
-          navbar: 'bg-blue-600',
-          navbarHover: 'hover:bg-blue-700',
-          sidebarHover: 'hover:bg-blue-50 hover:text-blue-600',
-          button: 'bg-blue-600',
-          buttonHover: 'hover:bg-blue-700',
-          accent: 'blue',
-        };
-      }
-    }
-    // Default blue for importer, exporter, and funder
+    // ICICI orange gradient for all users
     return {
-      navbar: 'bg-blue-600',
-      navbarHover: 'hover:bg-blue-700',
-      sidebarHover: 'hover:bg-blue-50 hover:text-blue-600',
-      button: 'bg-blue-600',
-      buttonHover: 'hover:bg-blue-700',
-      accent: 'blue',
+      navbar: 'bg-gradient-to-r from-orange-500 to-orange-700',
+      navbarHover: 'hover:bg-orange-700',
+      sidebarHover: 'hover:bg-orange-50 hover:text-orange-600',
+      button: 'bg-orange-600',
+      buttonHover: 'hover:bg-orange-700',
+      accent: 'orange',
     };
   };
 
