@@ -29,7 +29,29 @@ export default function SettlementsPage() {
         const forSettlement = data.data.filter((ptt: any) =>
           ptt.status === 'discounted'
         );
-        setPtts(forSettlement);
+
+        // Get pending settlement actions
+        const pendingActionsRes = await fetch(
+          '/api/bank/pending-actions?status=pending',
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+
+        if (pendingActionsRes.ok) {
+          const pendingData = await pendingActionsRes.json();
+          const pendingSettlementIds = new Set(
+            pendingData.data
+              ?.filter((action: any) => action.action_type === 'settle_ptt')
+              ?.map((action: any) => action.ptt_id) || []
+          );
+
+          // Filter out PTTs that have pending settlement actions
+          const filteredPtts = forSettlement.filter(
+            (ptt: any) => !pendingSettlementIds.has(ptt.id)
+          );
+          setPtts(filteredPtts);
+        } else {
+          setPtts(forSettlement);
+        }
       }
     } catch (error) {
       console.error('Error fetching settlement PTTs:', error);

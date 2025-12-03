@@ -228,12 +228,12 @@ export default function ReviewDocumentsPage() {
           )}
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+        {/* <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
           <p className="text-sm text-blue-700">
             ℹ️ <strong>Note:</strong> Click "View Docs" to see uploaded documents. Click "Approve" to mark all documents
             as approved and make the PTT redeemable for discounting.
           </p>
-        </div>
+        </div> */}
 
         {/* Documents Modal */}
         {selectedPtt && (

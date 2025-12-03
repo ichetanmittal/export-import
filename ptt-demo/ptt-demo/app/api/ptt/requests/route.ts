@@ -17,9 +17,22 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
+    // Get all pending actions for issue_ptt
+    const { data: pendingActions, error: pendingError } = await supabase
+      .from('pending_bank_actions')
+      .select('ptt_id')
+      .eq('action_type', 'issue_ptt')
+      .eq('status', 'pending');
+
+    if (pendingError) throw pendingError;
+
+    // Filter out PTTs that have pending actions
+    const pendingPttIds = new Set(pendingActions?.map(action => action.ptt_id) || []);
+    const filteredRequests = requests?.filter(request => !pendingPttIds.has(request.id)) || [];
+
     return NextResponse.json({
-      data: requests,
-      count: requests?.length || 0,
+      data: filteredRequests,
+      count: filteredRequests?.length || 0,
     }, { status: 200 });
   } catch (error) {
     console.error('Failed to fetch PTT requests:', error);
