@@ -44,7 +44,8 @@ export async function getMarketplaceOffers(filters?: {
         amount,
         currency,
         maturity_date,
-        status
+        status,
+        issuer_bank:issuer_bank_id(id, name, organization)
       ),
       exporter:exporter_id(id, name, organization)
     `);

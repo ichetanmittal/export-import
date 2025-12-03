@@ -16,9 +16,17 @@ export default function FunderPortfolio() {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`/api/ptt/user/${user.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      // For funder users, fetch PTTs by organization instead of individual user
+      let response;
+      if (user.role === 'funder' && user.organization) {
+        response = await fetch(`/api/ptt/funder/${encodeURIComponent(user.organization)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } else {
+        response = await fetch(`/api/ptt/user/${user.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
 
       if (response.ok) {
         const data = await response.json();

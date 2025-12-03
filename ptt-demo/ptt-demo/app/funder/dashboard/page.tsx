@@ -11,12 +11,56 @@ export default function FunderDashboard() {
   const [accepting, setAccepting] = useState<string | null>(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
+    fetchUserData();
     fetchMarketplace();
   }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+
+        // Fetch fresh user data from database
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/auth/user/${parsedUser.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const freshUser = data.user;
+
+          // For funder users, fetch total treasury from all users in the same organization
+          if (freshUser.role === 'funder' && freshUser.organization) {
+            const funderResponse = await fetch(`/api/funder/treasury/${encodeURIComponent(freshUser.organization)}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (funderResponse.ok) {
+              const funderData = await funderResponse.json();
+              // Override individual balance with funder's total treasury
+              freshUser.balance = funderData.totalTreasury;
+            }
+          }
+
+          setUser(freshUser);
+          // Update localStorage with fresh data
+          localStorage.setItem('user', JSON.stringify(freshUser));
+        } else {
+          // Fallback to localStorage data if API fails
+          setUser(parsedUser);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Fallback to localStorage data
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    }
+  };
 
   const fetchMarketplace = async () => {
     try {
@@ -27,7 +71,29 @@ export default function FunderDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setOffers(data.data || []);
+        let filteredOffers = data.data || [];
+
+        // Get pending accept_offer actions to filter them out
+        const pendingActionsRes = await fetch(
+          '/api/bank/pending-actions?status=pending',
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+
+        if (pendingActionsRes.ok) {
+          const pendingData = await pendingActionsRes.json();
+          const pendingOfferIds = new Set(
+            pendingData.data
+              ?.filter((action: any) => action.action_type === 'accept_offer')
+              ?.map((action: any) => action.action_data?.offer_id) || []
+          );
+
+          // Filter out offers that have pending actions
+          filteredOffers = filteredOffers.filter(
+            (offer: any) => !pendingOfferIds.has(offer.id)
+          );
+        }
+
+        setOffers(filteredOffers);
       }
     } catch (error) {
       console.error('Error fetching marketplace:', error);
@@ -42,26 +108,58 @@ export default function FunderDashboard() {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const token = localStorage.getItem('token');
 
-      const response = await fetch('/api/discounting/accept', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          offer_id: offerId,
-          funder_id: user.id,
-        })
-      });
+      // Check if user is a maker or has admin/checker role
+      if (user.funder_role === 'maker') {
+        // Create pending action for approval
+        const response = await fetch('/api/bank/pending-actions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            action_type: 'accept_offer',
+            initiated_by: user.id,
+            action_data: {
+              offer_id: offerId,
+              funder_id: user.id,
+              asking_price: askingPrice
+            }
+          })
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to accept offer');
+        if (!response.ok) {
+          throw new Error('Failed to submit offer acceptance for approval');
+        }
+
+        toast.success('Offer Acceptance Submitted!', {
+          description: 'Waiting for checker approval to proceed',
+          duration: 4000,
+        });
+      } else {
+        // Direct accept for admin/checker or users without funder_role
+        const response = await fetch('/api/discounting/accept', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            offer_id: offerId,
+            funder_id: user.id,
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to accept offer');
+        }
+
+        toast.success('Offer Accepted!', {
+          description: 'Payment processed and PTT transferred to your portfolio',
+          duration: 5000,
+        });
       }
 
-      toast.success('Offer Accepted!', {
-        description: 'Payment processed and PTT transferred to your portfolio',
-        duration: 5000,
-      });
       fetchMarketplace();
     } catch (error: any) {
       toast.error('Failed to Accept Offer', {

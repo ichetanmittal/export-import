@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // Get all pending actions for issue_ptt
     const { data: pendingActions, error: pendingError } = await supabase
-      .from('pending_bank_actions')
+      .from('pending_actions')
       .select('ptt_id')
       .eq('action_type', 'issue_ptt')
       .eq('status', 'pending');

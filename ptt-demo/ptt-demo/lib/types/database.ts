@@ -17,6 +17,7 @@ export interface User {
   credit_used: number;
   is_active: boolean;
   bank_role: 'maker' | 'checker' | 'admin' | null;
+  funder_role: 'maker' | 'checker' | 'admin' | null;
   created_at: string;
   updated_at: string;
 }
@@ -155,8 +156,8 @@ export interface Settlement {
   updated_at: string;
 }
 
-// Bank Actions (Maker-Checker)
-export type BankActionType = 'issue_ptt' | 'settle_ptt';
+// Bank Actions (Maker-Checker) - Also used for funder actions
+export type BankActionType = 'issue_ptt' | 'settle_ptt' | 'accept_offer';
 export type BankActionStatus = 'pending' | 'approved' | 'rejected';
 
 export interface PendingBankAction {

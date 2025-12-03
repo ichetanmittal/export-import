@@ -47,6 +47,24 @@ export async function POST(
 
       // Execute settlement
       await settlePayment(ptt_id);
+    } else if (action.action_type === 'accept_offer') {
+      const { offer_id, funder_id } = action.action_data;
+
+      // Accept the offer
+      const acceptResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/discounting/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          offer_id,
+          funder_id,
+        })
+      });
+
+      if (!acceptResponse.ok) {
+        throw new Error('Failed to accept offer');
+      }
     }
 
     return NextResponse.json({

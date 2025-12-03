@@ -15,7 +15,7 @@ export async function createPendingAction(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('pending_bank_actions')
+    .from('pending_actions')
     .insert({
       action_type: actionType,
       ptt_id: pttId || null,
@@ -41,7 +41,7 @@ export async function getPendingActionsByStatus(
   const supabase = await createClient();
 
   let query = supabase
-    .from('pending_bank_actions')
+    .from('pending_actions')
     .select(`
       *,
       ptt:ptt_id(*),
@@ -67,7 +67,7 @@ export async function getPendingActionById(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('pending_bank_actions')
+    .from('pending_actions')
     .select(`
       *,
       ptt:ptt_id(*),
@@ -92,7 +92,7 @@ export async function approvePendingAction(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('pending_bank_actions')
+    .from('pending_actions')
     .update({
       status: 'approved',
       approved_by: approvedBy,
@@ -118,7 +118,7 @@ export async function rejectPendingAction(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('pending_bank_actions')
+    .from('pending_actions')
     .update({
       status: 'rejected',
       approved_by: approvedBy,
@@ -143,7 +143,7 @@ export async function getPendingActionsByInitiator(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('pending_bank_actions')
+    .from('pending_actions')
     .select(`
       *,
       ptt:ptt_id(*),

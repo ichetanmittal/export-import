@@ -113,6 +113,7 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
     funder: [
       { label: 'Marketplace', href: '/funder/dashboard' },
       { label: 'My Portfolio', href: '/funder/portfolio' },
+      { label: 'Pending Approvals', href: '/funder/pending-approvals' },
     ],
   };
 
