@@ -22,6 +22,12 @@ interface PendingAction {
     amount: number;
     currency: string;
     maturity_date: string;
+    original_importer?: {
+      id: string;
+      name: string;
+      email: string;
+      organization: string;
+    };
   };
 }
 
@@ -220,6 +226,7 @@ export default function PendingApprovalsPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action Type</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PTT Number</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requester</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Initiated By</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requested At</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -241,8 +248,14 @@ export default function PendingApprovalsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         <div>
+                          <p className="font-medium">{action.ptt?.original_importer?.name || 'N/A'}</p>
+                          <p className="text-xs text-gray-500">{action.ptt?.original_importer?.organization || ''}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div>
                           <p className="font-medium">{action.initiated_by_user?.name || 'N/A'}</p>
-                          <p className="text-xs text-gray-500">{action.initiated_by_user?.email || ''}</p>
+                          <p className="text-xs text-gray-500">{action.initiated_by_user?.organization || ''}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

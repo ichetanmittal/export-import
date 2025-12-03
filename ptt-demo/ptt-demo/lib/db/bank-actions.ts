@@ -44,7 +44,10 @@ export async function getPendingActionsByStatus(
     .from('pending_actions')
     .select(`
       *,
-      ptt:ptt_id(*),
+      ptt:ptt_id(
+        *,
+        original_importer:original_importer_id(id, name, email, organization)
+      ),
       initiated_by_user:initiated_by(id, name, email, organization, bank_role),
       approved_by_user:approved_by(id, name, email, organization, bank_role)
     `)
@@ -70,7 +73,10 @@ export async function getPendingActionById(
     .from('pending_actions')
     .select(`
       *,
-      ptt:ptt_id(*),
+      ptt:ptt_id(
+        *,
+        original_importer:original_importer_id(id, name, email, organization)
+      ),
       initiated_by_user:initiated_by(id, name, email, organization, bank_role),
       approved_by_user:approved_by(id, name, email, organization, bank_role)
     `)
@@ -146,7 +152,10 @@ export async function getPendingActionsByInitiator(
     .from('pending_actions')
     .select(`
       *,
-      ptt:ptt_id(*),
+      ptt:ptt_id(
+        *,
+        original_importer:original_importer_id(id, name, email, organization)
+      ),
       initiated_by_user:initiated_by(id, name, email, organization, bank_role),
       approved_by_user:approved_by(id, name, email, organization, bank_role)
     `)
