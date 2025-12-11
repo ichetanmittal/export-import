@@ -143,7 +143,7 @@ export default function BankDocumentsPage() {
         </div>
 
         {/* Documents Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow">
           {loading ? (
             <div className="text-center py-12 text-gray-500">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
@@ -172,7 +172,7 @@ export default function BankDocumentsPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-w-full">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>

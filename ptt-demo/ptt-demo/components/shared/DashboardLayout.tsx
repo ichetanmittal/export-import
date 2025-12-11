@@ -157,7 +157,7 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
         <aside className={`
           fixed inset-y-0 left-0 top-16 z-20 w-64 bg-white border-r border-gray-200 shadow-lg
           transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0 lg:static lg:top-0
+          lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
           <nav className="h-full px-4 py-6 space-y-2 overflow-y-auto">
@@ -214,8 +214,8 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-h-screen">
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <div className="flex-1 flex flex-col min-h-screen lg:ml-64 overflow-hidden">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
             <div className="max-w-7xl mx-auto">
               {children}
             </div>
