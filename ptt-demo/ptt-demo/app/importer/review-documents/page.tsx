@@ -105,6 +105,22 @@ export default function ReviewDocumentsPage() {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+      // First, fetch all documents for this PTT
+      const docsResponse = await fetch(`/api/documents?ptt_id=${pttId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!docsResponse.ok) {
+        throw new Error('Failed to fetch documents');
+      }
+
+      const docsData = await docsResponse.json();
+      const documentIds = docsData.documents?.map((doc: any) => doc.id) || [];
+
+      if (documentIds.length === 0) {
+        throw new Error('No documents found to approve');
+      }
+
       // Approve documents - this will also mark PTT as redeemable
       const response = await fetch('/api/documents/approve', {
         method: 'POST',
@@ -113,7 +129,7 @@ export default function ReviewDocumentsPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          ptt_id: pttId,
+          document_ids: documentIds,
           approved_by_id: user.id,
           approved: true,
         })
@@ -128,6 +144,11 @@ export default function ReviewDocumentsPage() {
         duration: 4000,
       });
       fetchPTTsWithDocuments();
+
+      // If modal is open, refresh documents display
+      if (selectedPtt?.id === pttId) {
+        fetchDocuments(pttId);
+      }
     } catch (error: any) {
       toast.error('Approval Failed', {
         description: error.message,
