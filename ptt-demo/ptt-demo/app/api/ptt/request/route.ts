@@ -37,6 +37,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if exporter is blacklisted by the importer's bank
+    if (exporter_id && exporter_bank_id) {
+      const { createClient } = await import('@/lib/supabase/server');
+      const supabase = await createClient();
+
+      // Get importer's bank
+      const { data: importerData } = await supabase
+        .from('users')
+        .select('my_bank_id')
+        .eq('id', importer_id)
+        .single();
+
+      if (importerData?.my_bank_id) {
+        // Check if exporter is blacklisted by importer's bank
+        const { data: blacklisted } = await supabase
+          .from('blacklisted_organizations')
+          .select('id, reason')
+          .eq('bank_id', importerData.my_bank_id)
+          .eq('blacklisted_org_id', exporter_id)
+          .eq('is_active', true)
+          .single();
+
+        if (blacklisted) {
+          return NextResponse.json(
+            {
+              error: 'Exporter is blacklisted',
+              reason: blacklisted.reason,
+              message: 'This exporter has been blacklisted by your bank and cannot be used for PTT requests.'
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
     const ptt = await requestPTT({
       importer_id,
       amount,
