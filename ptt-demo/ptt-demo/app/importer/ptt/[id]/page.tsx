@@ -248,6 +248,31 @@ export default function PTTDetailsPage() {
               </p>
             </div>
             <div>
+              <p className="text-sm text-gray-500">Exporter</p>
+              <p className="text-lg font-semibold">
+                {ptt.exporter ? (
+                  <>
+                    {ptt.exporter.name}
+                    {ptt.exporter.organization && (
+                      <span className="text-sm text-gray-500 block">{ptt.exporter.organization}</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-gray-400 italic text-base">Not specified</span>
+                )}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Exporter&apos;s Bank</p>
+              <p className="text-lg font-semibold">
+                {ptt.exporter_bank ? (
+                  ptt.exporter_bank.organization || ptt.exporter_bank.name
+                ) : (
+                  <span className="text-gray-400 italic text-base">Not specified</span>
+                )}
+              </p>
+            </div>
+            <div>
               <p className="text-sm text-gray-500">Backing Type</p>
               <p className="text-lg font-semibold capitalize">{ptt.backing_type}</p>
             </div>

@@ -18,6 +18,7 @@ export interface User {
   is_active: boolean;
   bank_role: 'maker' | 'checker' | 'admin' | null;
   funder_role: 'maker' | 'checker' | 'admin' | null;
+  my_bank_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -42,6 +43,7 @@ export interface PTTToken {
   current_owner_id: string;
   original_importer_id: string;
   exporter_id: string | null;
+  exporter_bank_id: string | null;
   amount: number;
   currency: string;
   status: PTTStatus;
@@ -186,6 +188,7 @@ export interface PTTWithDetails extends PTTToken {
   current_owner: User;
   original_importer: User;
   exporter?: User;
+  exporter_bank?: User;
   conditions: PTTCondition[];
   documents: Document[];
   transfers: PTTTransfer[];

@@ -16,6 +16,12 @@ interface UserProfile {
   balance: number;
   credit_limit: number;
   credit_used: number;
+  my_bank_id: string | null;
+  my_bank?: {
+    id: string;
+    name: string;
+    organization: string | null;
+  };
   created_at: string;
 }
 
@@ -135,7 +141,13 @@ export default function ImporterProfile() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-medium text-gray-500 block mb-1">Bank Name</label>
-                <p className="text-gray-900 font-semibold">DBS Bank</p>
+                {user.my_bank ? (
+                  <p className="text-gray-900 font-semibold">
+                    {user.my_bank.organization || user.my_bank.name}
+                  </p>
+                ) : (
+                  <p className="text-gray-400 italic">Not linked</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500 block mb-1">Bank Account Number</label>

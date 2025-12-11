@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
             id,
             name,
             email,
-            organization
+            organization,
+            my_bank_id
           )
         `)
         .eq('importer_id', userId);

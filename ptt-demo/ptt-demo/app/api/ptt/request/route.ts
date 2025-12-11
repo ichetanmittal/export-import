@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       currency,
       maturity_days,
       exporter_id,
+      exporter_bank_id,
       trade_description,
       incoterms,
     } = body;
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
       currency,
       maturity_days,
       exporter_id,
+      exporter_bank_id,
       trade_description,
       incoterms,
     });

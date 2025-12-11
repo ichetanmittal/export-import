@@ -1,7 +1,7 @@
 'use client';
 
 import DashboardLayout from '@/components/shared/DashboardLayout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -9,14 +9,60 @@ export default function RequestPTTPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [exporters, setExporters] = useState<any[]>([]);
+  const [banks, setBanks] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   const [formData, setFormData] = useState({
     amount: '',
     currency: 'USD',
     maturityDays: '90',
     tradeDescription: '',
-    incoterms: 'FOB'
+    incoterms: 'FOB',
+    exporterId: '',
+    exporterBankId: ''
   });
+
+  // Fetch connected exporters and all banks
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // Fetch connected exporters
+        const exportersRes = await fetch(`/api/connections?user_id=${user.id}&role=importer`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const exportersData = await exportersRes.json();
+        setExporters(exportersData.data || []);
+
+        // Fetch all banks
+        const banksRes = await fetch('/api/users/by-role?role=bank', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const banksData = await banksRes.json();
+
+        // Deduplicate banks by organization name (keep first occurrence)
+        const uniqueBanks = (banksData.data || []).reduce((acc: any[], bank: any) => {
+          const orgName = bank.organization || bank.name;
+          if (!acc.find(b => (b.organization || b.name) === orgName)) {
+            acc.push(bank);
+          }
+          return acc;
+        }, []);
+
+        setBanks(uniqueBanks);
+      } catch (err) {
+        console.error('Failed to fetch data:', err);
+        toast.error('Failed to load exporters and banks');
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +85,9 @@ export default function RequestPTTPage() {
           currency: formData.currency,
           maturity_days: parseInt(formData.maturityDays),
           trade_description: formData.tradeDescription,
-          incoterms: formData.incoterms
+          incoterms: formData.incoterms,
+          exporter_id: formData.exporterId || null,
+          exporter_bank_id: formData.exporterBankId || null
         })
       });
 
@@ -99,6 +147,71 @@ export default function RequestPTTPage() {
                 <option value="GBP">GBP</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Exporter *
+            </label>
+            <select
+              required
+              value={formData.exporterId}
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                const selectedExporter = exporters.find((conn: any) => conn.user.id === selectedId);
+                setFormData({
+                  ...formData,
+                  exporterId: selectedId,
+                  exporterBankId: selectedExporter?.user?.my_bank_id || ''
+                });
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loadingData}
+            >
+              <option value="">Select Exporter</option>
+              {exporters.map((conn: any) => (
+                <option key={conn.user.id} value={conn.user.id}>
+                  {conn.user.name} - {conn.user.organization}
+                </option>
+              ))}
+            </select>
+            {exporters.length === 0 && !loadingData && (
+              <p className="text-sm text-gray-500 mt-1">
+                No connected exporters. Please connect with exporters first.
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Exporter&apos;s Bank
+            </label>
+            <select
+              required
+              value={formData.exporterBankId}
+              onChange={(e) => setFormData({...formData, exporterBankId: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
+              disabled={loadingData || !formData.exporterId}
+            >
+              <option value="">
+                {!formData.exporterId ? 'Select exporter first' : 'Select Bank'}
+              </option>
+              {banks.map((bank: any) => (
+                <option key={bank.id} value={bank.id}>
+                  {bank.organization || bank.name}
+                </option>
+              ))}
+            </select>
+            {formData.exporterId && formData.exporterBankId && (
+              <p className="text-xs text-blue-600 mt-1">
+                {/* ✓ Automatically selected based on exporter&apos;s bank */}
+              </p>
+            )}
+            {formData.exporterId && !formData.exporterBankId && (
+              <p className="text-xs text-amber-600 mt-1">
+                {/* ⚠ This exporter hasn&apos;t linked their bank yet. Please select manually. */}
+              </p>
+            )}
           </div>
 
           <div>

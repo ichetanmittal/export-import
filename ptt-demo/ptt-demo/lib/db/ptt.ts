@@ -9,6 +9,7 @@ export async function requestPTT(data: {
   currency?: string;
   maturity_days: number;
   exporter_id?: string;
+  exporter_bank_id?: string;
   trade_description?: string;
   incoterms?: string;
 }) {
@@ -29,6 +30,7 @@ export async function requestPTT(data: {
       current_owner_id: data.importer_id,
       original_importer_id: data.importer_id,
       exporter_id: data.exporter_id || null,
+      exporter_bank_id: data.exporter_bank_id || null,
       amount: data.amount,
       currency: data.currency || 'USD',
       status: 'requested',
@@ -207,6 +209,7 @@ export async function getPTTById(ptt_id: string) {
       current_owner:current_owner_id(id, name, organization, role),
       original_importer:original_importer_id(id, name, organization, role),
       exporter:exporter_id(id, name, organization, role),
+      exporter_bank:exporter_bank_id(id, name, organization, role),
       conditions:ptt_conditions(*),
       documents:documents(*),
       transfers:ptt_transfers(*)

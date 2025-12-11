@@ -14,6 +14,12 @@ interface UserProfile {
   ifsc_code: string | null;
   geography: string | null;
   balance: number;
+  my_bank_id: string | null;
+  my_bank?: {
+    id: string;
+    name: string;
+    organization: string | null;
+  };
   created_at: string;
 }
 
@@ -127,8 +133,19 @@ export default function ExporterProfile() {
             <div className="space-y-4">
               <div className="bg-white rounded-lg p-4">
                 <label className="text-sm font-medium text-gray-500 block mb-1">Bank Name</label>
-                <p className="text-xl font-semibold text-gray-900">ICICI Bank</p>
-                <p className="text-xs text-gray-500 mt-1">Your banking partner in India</p>
+                {user.my_bank ? (
+                  <>
+                    <p className="text-xl font-semibold text-gray-900">
+                      {user.my_bank.organization || user.my_bank.name}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Your banking partner</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xl font-semibold text-gray-400 italic">Not linked</p>
+                    <p className="text-xs text-amber-600 mt-1">Please contact admin to link your bank</p>
+                  </>
+                )}
               </div>
               <div className="bg-white rounded-lg p-4">
                 <label className="text-sm font-medium text-gray-500 block mb-1">Bank Account Number</label>

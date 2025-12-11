@@ -231,6 +231,8 @@ export default function BankDashboard() {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PTT Number</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Importer</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exporter</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exporter Bank</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Maturity</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trade Details</th>
@@ -245,6 +247,23 @@ export default function BankDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {request.original_importer?.organization || request.original_importer?.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {request.exporter ? (
+                          <div>
+                            <div className="font-medium">{request.exporter.name}</div>
+                            <div className="text-xs text-gray-500">{request.exporter.organization}</div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 italic">Not specified</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {request.exporter_bank ? (
+                          <div className="font-medium">{request.exporter_bank.organization || request.exporter_bank.name}</div>
+                        ) : (
+                          <span className="text-gray-400 italic">Not specified</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {request.currency} {parseFloat(request.amount).toLocaleString()}

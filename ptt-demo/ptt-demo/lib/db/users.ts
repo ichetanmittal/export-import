@@ -56,12 +56,15 @@ export async function getUserById(id: string) {
 
   const { data, error } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      my_bank:my_bank_id(id, name, organization)
+    `)
     .eq('id', id)
     .single();
 
   if (error) return null;
-  return data as User;
+  return data as any;
 }
 
 export async function verifyPassword(plainPassword: string, hashedPassword: string) {

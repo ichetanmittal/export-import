@@ -10,7 +10,9 @@ export async function GET(request: NextRequest) {
       .from('ptt_tokens')
       .select(`
         *,
-        original_importer:original_importer_id(id, name, organization, email)
+        original_importer:original_importer_id(id, name, organization, email),
+        exporter:exporter_id(id, name, organization, email),
+        exporter_bank:exporter_bank_id(id, name, organization)
       `)
       .eq('status', 'requested')
       .order('created_at', { ascending: false });
