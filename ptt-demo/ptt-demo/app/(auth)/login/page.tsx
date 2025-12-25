@@ -100,15 +100,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* <div className="mt-4 text-center text-sm text-gray-600">
-          <p>Demo Credentials:</p>
-          <div className="mt-2 space-y-1 text-xs">
-            <p>importer@demo.com / Demo@123</p>
-            <p>bank@demo.com / Demo@123</p>
-            <p>exporter@demo.com / Demo@123</p>
-            <p>funder@demo.com / Demo@123</p>
-          </div>
-        </div> */}
+        <div className="text-center text-sm text-gray-600">
+          Don't have an account?{' '}
+          <a href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+            Register here
+          </a>
+        </div>
       </div>
     </div>
   );

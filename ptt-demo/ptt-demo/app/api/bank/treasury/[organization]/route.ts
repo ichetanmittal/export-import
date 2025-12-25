@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+// FIXED: Now uses organization-level treasury instead of summing user balances
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ organization: string }> }
@@ -16,28 +17,54 @@ export async function GET(
     }
 
     const supabase = await createClient();
+    const orgName = decodeURIComponent(organization);
 
-    // Get all bank users from this organization and sum their balances
-    const { data: bankUsers, error } = await supabase
-      .from('users')
-      .select('balance')
-      .eq('organization', decodeURIComponent(organization))
-      .eq('role', 'bank');
+    // FIXED: Get organization treasury directly from organizations table
+    // Works for banks, funders, and all organization types
+    const { data: org, error: orgError } = await supabase
+      .from('organizations')
+      .select('id, name, treasury_balance, type')
+      .eq('name', orgName)
+      .single();
 
-    if (error) {
-      console.error('Error fetching bank users:', error);
-      throw error;
+    if (orgError || !org) {
+      // Fallback to legacy method for backward compatibility
+      const { data: bankUsers, error } = await supabase
+        .from('users')
+        .select('balance, organization_id')
+        .eq('organization', orgName)
+        .eq('role', 'bank');
+
+      if (error) {
+        console.error('Error fetching bank data:', error);
+        throw error;
+      }
+
+      // Legacy: Sum user balances
+      const totalTreasury = bankUsers.reduce((sum, user) => {
+        return sum + (parseFloat(user.balance?.toString() || '0'));
+      }, 0);
+
+      return NextResponse.json({
+        organization: orgName,
+        totalTreasury,
+        userCount: bankUsers.length,
+        legacy: true, // Indicator that this is using old method
+      });
     }
 
-    // Calculate total treasury
-    const totalTreasury = bankUsers.reduce((sum, user) => {
-      return sum + (parseFloat(user.balance?.toString() || '0'));
-    }, 0);
+    // NEW: Get user count for the organization
+    const { count: userCount } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', org.id);
 
     return NextResponse.json({
-      organization: decodeURIComponent(organization),
-      totalTreasury,
-      userCount: bankUsers.length
+      organization: org.name,
+      organizationId: org.id,
+      totalTreasury: org.treasury_balance,
+      userCount: userCount || 0,
+      legacy: false, // Using new organization-level treasury
     });
   } catch (error: any) {
     console.error('Error fetching bank treasury:', error);

@@ -8,6 +8,7 @@ export default function BankDashboard() {
   const [requests, setRequests] = useState<any[]>([]);
   const [allPtts, setAllPtts] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [orgTreasury, setOrgTreasury] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState<string | null>(null);
 
@@ -33,16 +34,22 @@ export default function BankDashboard() {
           const data = await response.json();
           const freshUser = data.user;
 
-          // For bank users, fetch total treasury from all users in the same bank
+          // For bank users, fetch organization treasury
           if (freshUser.role === 'bank' && freshUser.organization) {
+            console.log('Fetching treasury for organization:', freshUser.organization);
             const bankResponse = await fetch(`/api/bank/treasury/${encodeURIComponent(freshUser.organization)}`, {
               headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (bankResponse.ok) {
               const bankData = await bankResponse.json();
+              console.log('Treasury data received:', bankData);
+              // Set organization treasury
+              setOrgTreasury(bankData.totalTreasury || 0);
               // Override individual balance with bank's total treasury
               freshUser.balance = bankData.totalTreasury;
+            } else {
+              console.error('Failed to fetch treasury:', await bankResponse.text());
             }
           }
 
@@ -192,10 +199,10 @@ export default function BankDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Treasury Balance</h3>
-            <p className="text-3xl font-bold text-green-600 mt-2">
-              ${user?.balance ? parseFloat(user.balance).toLocaleString() : '0'}
+            <p className="text-xl font-bold text-green-600 mt-2">
+              ₹{orgTreasury > 0 ? orgTreasury.toLocaleString() : (user?.balance ? parseFloat(user.balance).toLocaleString() : '0')}
             </p>
-            <p className="text-xs text-gray-400 mt-1">Available funds</p>
+            <p className="text-xs text-gray-400 mt-1">Organization funds</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Pending Requests</h3>
