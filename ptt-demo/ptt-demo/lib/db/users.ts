@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { User } from '@/lib/types/database';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export async function createUser(data: {
   email: string;
@@ -56,15 +56,15 @@ export async function getUserById(id: string) {
 
   const { data, error } = await supabase
     .from('users')
-    .select(`
-      *,
-      my_bank:my_bank_id(id, name, organization)
-    `)
+    .select('*')
     .eq('id', id)
     .single();
 
-  if (error) return null;
-  return data as any;
+  if (error) {
+    console.error('Error fetching user by ID:', error);
+    return null;
+  }
+  return data as User;
 }
 
 export async function verifyPassword(plainPassword: string, hashedPassword: string) {
