@@ -20,11 +20,11 @@ export async function GET(
     const orgName = decodeURIComponent(organization);
 
     // FIXED: Get organization treasury directly from organizations table
+    // Works for banks, funders, and all organization types
     const { data: org, error: orgError } = await supabase
       .from('organizations')
       .select('id, name, treasury_balance, type')
       .eq('name', orgName)
-      .eq('type', 'bank')
       .single();
 
     if (orgError || !org) {
