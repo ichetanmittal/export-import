@@ -47,6 +47,7 @@ export async function requestPTT(data: {
 }
 
 // Issue PTT (Bank action)
+// UPDATED: Now uses organization-level credit tracking
 export async function issuePTT(data: {
   ptt_id: string;
   bank_id: string;
@@ -54,17 +55,29 @@ export async function issuePTT(data: {
 }) {
   const supabase = await createClient();
 
-  // Get PTT details to increment credit
+  // Get PTT details with organization info
   const { data: existingPtt } = await supabase
     .from('ptt_tokens')
-    .select('*, original_importer:original_importer_id(id)')
+    .select(`
+      *,
+      original_importer:original_importer_id(id, organization_id),
+      original_importer_org_id
+    `)
     .eq('id', data.ptt_id)
+    .single();
+
+  // Get bank user's organization
+  const { data: bankUser } = await supabase
+    .from('users')
+    .select('id, organization_id')
+    .eq('id', data.bank_id)
     .single();
 
   const { data: ptt, error } = await supabase
     .from('ptt_tokens')
     .update({
       issuer_bank_id: data.bank_id,
+      issuer_bank_org_id: bankUser?.organization_id, // NEW: Set bank organization
       backing_type: data.backing_type,
       status: 'issued',
     })
@@ -74,9 +87,39 @@ export async function issuePTT(data: {
 
   if (error) throw error;
 
-  // Increment credit used for the importer when PTT is issued
-  if (existingPtt?.original_importer_id) {
+  // UPDATED: Increment credit at organization level
+  const importerOrgId = existingPtt?.original_importer_org_id ||
+                        (existingPtt?.original_importer as any)?.organization_id;
+
+  if (importerOrgId) {
+    // Use organization-level credit tracking
+    const { incrementOrganizationCreditUsed } = await import('./organizations');
+    await incrementOrganizationCreditUsed(importerOrgId, (ptt as PTTToken).amount);
+  } else if (existingPtt?.original_importer_id) {
+    // Fallback for legacy data
     await incrementCreditUsed(existingPtt.original_importer_id, (ptt as PTTToken).amount);
+  }
+
+  // Update bank_client credit used if relationship exists
+  if (bankUser?.organization_id && importerOrgId) {
+    const { data: bankClient } = await supabase
+      .from('bank_clients')
+      .select('id')
+      .eq('bank_org_id', bankUser.organization_id)
+      .eq('client_org_id', importerOrgId)
+      .single();
+
+    if (bankClient) {
+      // Update PTT with bank_client reference
+      await supabase
+        .from('ptt_tokens')
+        .update({ bank_client_id: bankClient.id })
+        .eq('id', data.ptt_id);
+
+      // Increment bank-client credit used
+      const { incrementBankClientCredit } = await import('./bank-clients');
+      await incrementBankClientCredit(bankClient.id, (ptt as PTTToken).amount);
+    }
   }
 
   // Record transfer

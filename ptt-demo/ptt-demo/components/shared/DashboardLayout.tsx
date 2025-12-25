@@ -77,9 +77,14 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
     ],
     bank: [
       { label: 'Dashboard', href: '/bank/dashboard' },
+      { label: '---', href: '#', section: 'ISSUING' },
+      { label: 'Manage Importers', href: '/bank/manage-importers' },
       { label: 'Outstanding PTTs', href: '/bank/outstanding-ptts' },
-      { label: 'Settlements', href: '/bank/settlements' },
       { label: 'Pending Approvals', href: '/bank/pending-approvals' },
+      { label: '---', href: '#', section: 'FINANCING' },
+      { label: 'Manage Exporters', href: '/bank/manage-exporters' },
+      { label: 'Settlements', href: '/bank/settlements' },
+      { label: '---', href: '#', section: 'OPERATIONS' },
       { label: 'Documents', href: '/bank/documents' },
       { label: 'Blacklist', href: '/bank/blacklist' },
     ],
@@ -91,7 +96,10 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
       { label: 'Profile', href: '/exporter/profile' },
     ],
     funder: [
-      { label: 'Marketplace', href: '/funder/dashboard' },
+      { label: 'Dashboard', href: '/funder/dashboard' },
+      { label: '---', href: '#', section: 'FINANCING' },
+      { label: 'Manage Exporters', href: '/funder/manage-exporters' },
+      { label: 'Discount Offers', href: '/funder/dashboard' },
       { label: 'My Portfolio', href: '/funder/portfolio' },
       { label: 'Pending Approvals', href: '/funder/pending-approvals' },
     ],
@@ -161,18 +169,35 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
           <nav className="h-full px-4 py-6 space-y-2 overflow-y-auto">
-            {navLinks[role].map((link, index) => (
-              <button
-                key={`${link.label}-${index}`}
-                onClick={() => {
-                  router.push(link.href);
-                  setSidebarOpen(false);
-                }}
-                className={`w-full text-left px-4 py-3 rounded-lg ${themeColors.sidebarHover} transition-colors font-medium text-gray-700`}
-              >
-                {link.label}
-              </button>
-            ))}
+            {navLinks[role].map((link, index) => {
+              // Render section headers
+              if (link.label === '---' && (link as any).section) {
+                return (
+                  <div
+                    key={`section-${index}`}
+                    className="pt-4 pb-2 px-2 text-xs font-bold text-gray-500 uppercase tracking-wider border-t border-gray-200 mt-4"
+                  >
+                    {(link as any).section}
+                  </div>
+                );
+              }
+
+              // Render regular links
+              return (
+                <button
+                  key={`${link.label}-${index}`}
+                  onClick={() => {
+                    if (link.href !== '#') {
+                      router.push(link.href);
+                      setSidebarOpen(false);
+                    }
+                  }}
+                  className={`w-full text-left px-4 py-3 rounded-lg ${themeColors.sidebarHover} transition-colors font-medium text-gray-700`}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
           </nav>
         </aside>
 

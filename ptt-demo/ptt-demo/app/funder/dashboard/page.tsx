@@ -12,7 +12,7 @@ export default function FunderDashboard() {
 
   useEffect(() => {
     fetchUserData();
-    fetchMarketplace();
+    fetchAvailableOffers(); // Was: fetchMarketplace
   }, []);
 
   const fetchUserData = async () => {
@@ -62,10 +62,10 @@ export default function FunderDashboard() {
     }
   };
 
-  const fetchMarketplace = async () => {
+  const fetchAvailableOffers = async () => { // Was: fetchMarketplace
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/discounting/marketplace', {
+      const response = await fetch('/api/discounting/marketplace', {  // API endpoint unchanged
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -160,7 +160,7 @@ export default function FunderDashboard() {
         });
       }
 
-      fetchMarketplace();
+      fetchAvailableOffers(); // Was: fetchMarketplace
     } catch (error: any) {
       toast.error('Failed to Accept Offer', {
         description: error.message,
@@ -201,7 +201,7 @@ export default function FunderDashboard() {
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Available Offers</h3>
             <p className="text-3xl font-bold text-green-600 mt-2">{stats.availableOffers}</p>
-            <p className="text-xs text-gray-400 mt-1">In marketplace</p>
+            <p className="text-xs text-gray-400 mt-1">Available</p> {/* Was: In marketplace */}
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Total Investment Available</h3>
