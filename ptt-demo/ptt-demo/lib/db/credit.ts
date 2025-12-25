@@ -12,24 +12,61 @@ export async function getAvailableCredit(userId: string): Promise<number> {
   return data || 0;
 }
 
-// Get credit information for a user
+// Get credit information for a user (FIXED: now uses organization-level credit)
 export async function getCreditInfo(userId: string) {
   const supabase = await createClient();
 
-  const { data: user, error } = await supabase
+  // First, get user info with organization_id
+  const { data: user, error: userError } = await supabase
     .from('users')
-    .select('id, name, email, organization, credit_limit, credit_used')
+    .select('id, name, email, organization, organization_id, role, credit_limit, credit_used')
     .eq('id', userId)
     .single();
 
-  if (error) throw new Error(`Failed to get credit info: ${error.message}`);
+  if (userError) throw new Error(`Failed to get user info: ${userError.message}`);
 
+  // If user has organization_id and is an importer/exporter, get organization-level credit
+  if (user.organization_id && (user.role === 'importer' || user.role === 'exporter')) {
+    // Get bank-client relationship to find organization-level credit
+    const { data: bankClient, error: bcError } = await supabase
+      .from('bank_clients')
+      .select(`
+        id,
+        credit_limit,
+        credit_used,
+        relationship_type,
+        bank_org:bank_org_id(id, name)
+      `)
+      .eq('client_org_id', user.organization_id)
+      .maybeSingle();
+
+    if (bankClient && !bcError) {
+      // Return organization-level credit from bank_clients
+      return {
+        ...user,
+        credit_limit: bankClient.credit_limit || 0,
+        credit_used: bankClient.credit_used || 0,
+        available_credit: (bankClient.credit_limit || 0) - (bankClient.credit_used || 0),
+        utilization_percentage: bankClient.credit_limit > 0
+          ? ((bankClient.credit_used || 0) / bankClient.credit_limit) * 100
+          : 0,
+        bank_name: bankClient.bank_org?.name || 'Unknown Bank',
+        relationship_type: bankClient.relationship_type,
+      };
+    }
+  }
+
+  // Fallback to user-level credit (legacy)
   return {
     ...user,
+    credit_limit: user.credit_limit || 0,
+    credit_used: user.credit_used || 0,
     available_credit: (user.credit_limit || 0) - (user.credit_used || 0),
     utilization_percentage: user.credit_limit > 0
       ? ((user.credit_used || 0) / user.credit_limit) * 100
-      : 0
+      : 0,
+    bank_name: null,
+    relationship_type: null,
   };
 }
 
